@@ -20,7 +20,7 @@ export interface Todo {
 interface TodoCardProps {
   todo: Todo;
   onToggleStatus: (id: string) => void;
-  onEdit: (id: string) => void;
+  onEdit: (todo: Todo) => void;
   onCancel: (id: string) => void;
 }
 
@@ -81,9 +81,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onEdit, onCan
           
           <TodoEditDialog 
             todo={todo} 
-            onEdit={function (todo: Todo): void {
-              throw new Error("Function not implemented.");
-            }} 
+            onEdit={onEdit}
           />
         </div>
       </CardContent>

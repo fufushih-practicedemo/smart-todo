@@ -1,66 +1,60 @@
 'use client';
 
-import { CalendarIcon, Edit, X } from "lucide-react";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Todo } from "./TodoCard";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Calendar } from "../ui/calendar";
-import { format, toDate } from "date-fns";
+import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-interface TodoEditDialogProps {
-  todo: Todo;
-  onEdit: (todo: Todo) => void
+interface TodoCreateDialogProps {
+  onCreate: (todo: Omit<Todo, 'id' | 'isDone'>) => void;
 }
 
-
-const todoSchema: z.ZodSchema<Todo> = z.object({
-  id: z.string(),
+const todoSchema = z.object({
   title: z.string().min(2).max(50),
-  isDone: z.boolean(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   labels: z.array(z.string()).optional(),
-  subTodos: z.array(z.lazy(() => todoSchema)).optional(),
-})
+});
 
+type TodoFormValues = z.infer<typeof todoSchema>;
 
-const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
+const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
   const [open, setOpen] = useState(false);
-  const form = useForm<Todo>({
+  const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
     defaultValues: {
-      ...todo,
-      labels: todo.labels || [],
+      title: '',
+      labels: [],
     }
   });
 
-  const onSubmit = (values: z.infer<typeof todoSchema>) => {
-    onEdit(values);
+  const onSubmit = (values: TodoFormValues) => {
+    onCreate(values);
+    form.reset();
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button 
-          className="text-sm text-blue-500 hover:underline flex gap-2"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Edit className="size-5" />
-          修改
-        </button>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          新建Todo
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>編輯代辦事項</DialogTitle>
+          <DialogTitle>創建新的代辦事項</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -80,7 +74,6 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
               control={form.control}
               name="startDate"
               render={({ field }) => {
-                const { value, onChange} = field;
                 return (
                   <FormItem>
                     <FormLabel>開始日期</FormLabel>
@@ -91,20 +84,18 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                             variant={"outline"}
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {value ? format(value, 'yyyy-MM-dd') : <span>選擇日期</span>}
+                            {field.value ? field.value : <span>選擇日期</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={value ? toDate(value) : undefined}
-                            onSelect={(date) => {
-                              if(date) onChange(format(date, 'yyyy-MM-dd'));
-                            }}
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
                           />
                         </PopoverContent>
                       </Popover>
@@ -117,7 +108,6 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
               control={form.control}
               name="endDate"
               render={({ field }) => {
-                const { value, onChange} = field;
                 return (
                   <FormItem>
                     <FormLabel>結束日期</FormLabel>
@@ -128,20 +118,18 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                             variant={"outline"}
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {value ? format(value, 'yyyy-MM-dd') : <span>選擇日期</span>}
+                            {field.value ? field.value : <span>選擇日期</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={value ? toDate(value) : undefined}
-                            onSelect={(date) => {
-                              if(date) onChange(format(date, 'yyyy-MM-dd'));
-                            }}
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
                           />
                         </PopoverContent>
                       </Popover>
@@ -193,7 +181,7 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                 </FormItem>
               )}
             />
-            <Button type="submit">保存修改</Button>
+            <Button type="submit">創建代辦事項</Button>
           </form>
         </Form>
       </DialogContent>
@@ -201,4 +189,4 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
   )
 }
 
-export default TodoEditDialog
+export default TodoCreateDialog

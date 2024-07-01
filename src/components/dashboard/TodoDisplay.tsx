@@ -1,11 +1,8 @@
 'use client';
 
-import { CheckCircle2, Circle, Trash } from "lucide-react";
-import { Card, CardContent, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import TodoCard, { Todo } from "./TodoCard";
+import TodoCreateDialog from "./TodoCreateDialog";
 
 interface TodoDisplayProps {
   todos: Todo[];
@@ -13,7 +10,6 @@ interface TodoDisplayProps {
 
 const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
-  const today = new Date();
 
   const handleToggleStatus = (id: string) => {
     setTodos(prevTodos => 
@@ -23,9 +19,22 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
     );
   };
 
-  const handleEdit = (id: string) => {
-    
-  }
+  const handleEdit = (editedTodo: Todo) => {
+    setTodos(prevTodos => 
+      prevTodos.map(todo => 
+        todo.id === editedTodo.id ? editedTodo : todo
+      )
+    );
+  };
+
+  const handleCreate = (newTodo: Omit<Todo, 'id' | 'isDone'>) => {
+    const todo: Todo = {
+      ...newTodo,
+      id: Math.random().toString(36).substr(2, 9),
+      isDone: false,
+    };
+    setTodos(prevTodos => [...prevTodos, todo]);
+  };
 
   const handleCancel = (id: string) => {
     setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
@@ -33,21 +42,16 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
 
   return (
     <section className="w-full min-h-screen flex flex-col space-y-2 p-2">
-      {todos.map((todo) => {
-        const endDate = todo.endDate ? new Date(todo.endDate) : undefined;
-        const isExpired = endDate && endDate < today;
-        const cardColor = isExpired ? "bg-gray-200 dark:bg-gray-700" : "";
-
-        return (
-          <TodoCard 
-            key={todo.id} 
-            todo={todo} 
-            onToggleStatus={handleToggleStatus} 
-            onEdit={handleEdit}
-            onCancel={handleCancel} 
-          />
-        );
-      })}
+      <TodoCreateDialog onCreate={handleCreate} />
+      {todos.map((todo) => (
+        <TodoCard 
+          key={todo.id} 
+          todo={todo} 
+          onToggleStatus={handleToggleStatus} 
+          onEdit={handleEdit}
+          onCancel={handleCancel} 
+        />
+      ))}
     </section>
   )
 }

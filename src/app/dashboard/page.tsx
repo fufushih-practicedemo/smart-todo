@@ -10,7 +10,7 @@ const DashboardPage = async () => {
   //   redirect('/auth');
   // }
   return (
-    <main className="flex flex-col gap-2 max-w-full mx-auto">
+    <main className="flex flex-col gap-2 max-w-screen-2xl mx-auto">
       <TodoDashboard />
     </main>
   )
