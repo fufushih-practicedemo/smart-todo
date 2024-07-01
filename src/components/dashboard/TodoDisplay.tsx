@@ -23,6 +23,10 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
     );
   };
 
+  const handleEdit = (id: string) => {
+    
+  }
+
   const handleCancel = (id: string) => {
     setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
   };
@@ -39,6 +43,7 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
             key={todo.id} 
             todo={todo} 
             onToggleStatus={handleToggleStatus} 
+            onEdit={handleEdit}
             onCancel={handleCancel} 
           />
         );

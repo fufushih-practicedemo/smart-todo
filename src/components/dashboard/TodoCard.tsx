@@ -2,8 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Circle, Trash } from "lucide-react";
+import { CheckCircle2, Circle, Edit, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import TodoEditDialog from "./TodoEditDialog";
 
 export interface Todo {
   id: string;
@@ -18,10 +20,11 @@ export interface Todo {
 interface TodoCardProps {
   todo: Todo;
   onToggleStatus: (id: string) => void;
+  onEdit: (id: string) => void;
   onCancel: (id: string) => void;
 }
 
-const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCancel }) => {
+const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onEdit, onCancel }) => {
   const today = new Date();
   const endDate = todo.endDate ? new Date(todo.endDate) : undefined;
   const isExpired = endDate && endDate < today;
@@ -75,6 +78,13 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCancel }) =
             <Trash className="size-5" />
             刪除
           </button>
+          
+          <TodoEditDialog 
+            todo={todo} 
+            onEdit={function (todo: Todo): void {
+              throw new Error("Function not implemented.");
+            }} 
+          />
         </div>
       </CardContent>
     </Card>
