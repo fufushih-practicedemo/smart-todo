@@ -43,12 +43,36 @@ const DUMMY_TODO = [
     startDate: "2024-03-01",
     endDate: "2024-03-03",
     labels: ["娛樂", "計劃"]
-  }
+  },
+  {
+    id: "6",
+    title: "主要任務",
+    isDone: false,
+    subTodos: [
+      {
+        id: "1-1",
+        title: "子任務 1",
+        isDone: false,
+      },
+      {
+        id: "1-2",
+        title: "子任務 2",
+        isDone: true,
+        subTodos: [
+          {
+            id: "1-2-1",
+            title: "孫任務",
+            isDone: false,
+          }
+        ]
+      }
+    ]
+  },
 ];
 
-interface TodoProps {}
+interface TodoDashboardProps {}
 
-const Todo: React.FC<TodoProps> = ({}) => {
+const TodoDashboard: React.FC<TodoDashboardProps> = ({}) => {
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup direction="horizontal">
@@ -91,4 +115,4 @@ const Todo: React.FC<TodoProps> = ({}) => {
   )
 }
 
-export default Todo
+export default TodoDashboard
