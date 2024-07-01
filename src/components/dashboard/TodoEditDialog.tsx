@@ -48,6 +48,7 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
       <DialogTrigger asChild>
         <button 
           className="text-sm text-red-500 hover:underline flex gap-2"
+          onClick={(e) => e.stopPropagation()}
         >
           <Edit className="size-5" />
           修改
