@@ -5,6 +5,7 @@ import Nav from "./Nav";
 import { Inbox, Send, File, Archive, ArchiveX, Trash2, Trash, Home } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import TodoDisplay from "./TodoDisplay";
+import { Todo } from "@/actions/todo";
 
 const DUMMY_TODO = [
   {
@@ -70,9 +71,11 @@ const DUMMY_TODO = [
   },
 ];
 
-interface TodoDashboardProps {}
+interface TodoDashboardProps {
+  todos?: Todo[]
+}
 
-const TodoDashboard: React.FC<TodoDashboardProps> = ({}) => {
+const TodoDashboard: React.FC<TodoDashboardProps> = ({ todos }) => {
   return (
     <TooltipProvider delayDuration={0}>
       <ResizablePanelGroup direction="horizontal">
@@ -107,7 +110,7 @@ const TodoDashboard: React.FC<TodoDashboardProps> = ({}) => {
         
         <ResizablePanel defaultSize={70}>
           <TodoDisplay 
-            todos={DUMMY_TODO}    
+            todos={todos ?? []}    
           />
         </ResizablePanel>
       </ResizablePanelGroup>

@@ -6,16 +6,17 @@ import { CheckCircle2, Circle, Edit, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import TodoEditDialog from "./TodoEditDialog";
+import { Todo } from "@/actions/todo";
 
-export interface Todo {
-  id: string;
-  title: string;
-  isDone: boolean;
-  startDate?: string;
-  endDate?: string;
-  labels?: string[];
-  subTodos?: Todo[]
-}
+// export interface Todo {
+//   id: string;
+//   title: string;
+//   isDone: boolean;
+//   startDate?: string;
+//   endDate?: string;
+//   labels?: string[];
+//   subTodos?: Todo[]
+// }
 
 interface TodoCardProps {
   todo: Todo;

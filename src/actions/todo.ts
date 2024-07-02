@@ -1,47 +1,56 @@
 "use server";
 
 import { z } from "zod";
-import { prisma } from "@/lib/prisma"; // 假設您有一個 prisma 客戶端的實例
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getUser } from "@/lib/lucia";
 
-// Todo 的 schema 定義
+export type Todo = {
+  id: string;
+  title: string;
+  isDone: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  labels?: string[];
+  subTodos?: Todo[];
+};
+
+export type ApiResponse<T> = {
+  status: "success" | "error";
+  message: string;
+  data: T[];
+};
+
 const TodoSchema = z.object({
   title: z.string().min(1, "標題不能為空").max(100, "標題不能超過100個字符"),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   isDone: z.boolean().optional(),
   labels: z.array(z.string()).optional(),
 });
 
-export const createTodo = async (values: z.infer<typeof TodoSchema>) => {
+export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { status: "error", message: "Unauthorized", data: [] };
     }
     const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.email
-      }
-    })
+      where: { email: user.email }
+    });
     if (!dbUser) {
-      return { error: "No User" };
+      return { status: "error", message: "User not found", data: [] };
     }
-    const userId = dbUser.id;
 
     const validatedFields = TodoSchema.safeParse(values);
-
     if (!validatedFields.success) {
-      return { error: "Invalid fields" };
+      return { status: "error", message: "Invalid fields", data: [] };
     }
 
     const todo = await prisma.todo.create({
       data: {
         ...validatedFields.data,
-        user: {
-          connect: { id: userId }
-        },
+        user: { connect: { id: dbUser.id } },
         labels: {
           connectOrCreate: validatedFields.data.labels?.map(label => ({
             where: { name: label },
@@ -50,64 +59,70 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>) => {
         },
       },
     });
+    const filterTodo: Todo = {
+      ...todo,
+      startDate: todo.startDate ?? undefined,
+      endDate: todo.endDate ?? undefined
+    }
 
-    return { success: true, todo };
+    return { status: "success", message: "Todo created successfully", data: [filterTodo] };
   } catch (error) {
-    return { error: "Failed to create todo" };
+    return { status: "error", message: "Failed to create todo", data: [] };
   }
 };
 
-export const getTodos = async () => {
+export const getTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { status: "error", message: "Unauthorized", data: [] };
     }
     const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.email
-      }
-    })
+      where: { email: user.email }
+    });
     if (!dbUser) {
-      return { error: "No User" };
+      return { status: "error", message: "User not found", data: [] };
     }
-    const userId = dbUser.id;
 
     const todos = await prisma.todo.findMany({
-      where: { userId },
+      where: { userId: dbUser.id },
       include: { labels: true },
     });
-    return todos;
+
+    const filtedTodos = todos.map((todo) => ({
+      ...todo,
+      labels: todo.labels.map((label) => label.name),
+      startDate: todo.startDate ?? undefined,
+      endDate: todo.endDate ?? undefined
+    }))
+
+    return { status: "success", message: "Todos fetched successfully", data: filtedTodos };
   } catch (error) {
     console.error("Failed to fetch todos:", error);
-    return [];
+    return { status: "error", message: "Failed to fetch todos", data: [] };
   }
 };
 
-export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>) => {
+export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { status: "error", message: "Unauthorized", data: [] };
     }
     const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.email
-      }
-    })
+      where: { email: user.email }
+    });
     if (!dbUser) {
-      return { error: "No User" };
+      return { status: "error", message: "User not found", data: [] };
     }
-    const userId = dbUser.id;
 
     const validatedFields = TodoSchema.safeParse(values);
-
     if (!validatedFields.success) {
-      return { error: "Invalid fields" };
+      return { status: "error", message: "Invalid fields", data: [] };
     }
 
     const todo = await prisma.todo.update({
-      where: { id, userId },
+      where: { id, userId: dbUser.id },
       data: {
         ...validatedFields.data,
         labels: {
@@ -119,69 +134,74 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
         },
       },
     });
+    const filterTodo: Todo = {
+      ...todo,
+      startDate: todo.startDate ?? undefined,
+      endDate: todo.endDate ?? undefined
+    }
 
     revalidatePath("/todos");
-    return { success: true, todo };
+    return { status: "success", message: "Todo updated successfully", data: [filterTodo] };
   } catch (error) {
-    return { error: "Failed to update todo" };
+    return { status: "error", message: "Failed to update todo", data: [] };
   }
 };
 
-export const deleteTodo = async (id: string) => {
+export const deleteTodo = async (id: string): Promise<ApiResponse<never>> => {
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { status: "error", message: "Unauthorized", data: [] };
     }
     const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.email
-      }
-    })
+      where: { email: user.email }
+    });
     if (!dbUser) {
-      return { error: "No User" };
+      return { status: "error", message: "User not found", data: [] };
     }
-    const userId = dbUser.id;
 
     await prisma.todo.delete({
-      where: { id, userId },
+      where: { id, userId: dbUser.id },
     });
 
-    return { success: true };
+    return { status: "success", message: "Todo deleted successfully", data: [] };
   } catch (error) {
-    return { error: "Failed to delete todo" };
+    return { status: "error", message: "Failed to delete todo", data: [] };
   }
 };
 
-export const toggleTodoStatus = async (id: string) => {
+export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { status: "error", message: "Unauthorized", data: [] };
     }
     const dbUser = await prisma.user.findUnique({
-      where: {
-        email: user.email
-      }
-    })
+      where: { email: user.email }
+    });
     if (!dbUser) {
-      return { error: "No User" };
+      return { status: "error", message: "User not found", data: [] };
     }
-    const userId = dbUser.id;
 
-    const todo = await prisma.todo.findUnique({ where: { id } });
+    const todo = await prisma.todo.findUnique({ where: { id, userId: dbUser.id } });
     if (!todo) {
-      return { error: "Todo not found" };
+      return { status: "error", message: "Todo not found", data: [] };
     }
 
     const updatedTodo = await prisma.todo.update({
-      where: { id, userId },
+      where: { id, userId: dbUser.id },
       data: { isDone: !todo.isDone },
     });
+    const filterTodo: Todo = {
+      ...updatedTodo,
+      startDate: todo.startDate ?? undefined,
+      endDate: todo.endDate ?? undefined
+    }
+    
 
     revalidatePath("/todos");
-    return { success: true, todo: updatedTodo };
+    return { status: "success", message: "Todo status toggled successfully", data: [filterTodo] };
   } catch (error) {
-    return { error: "Failed to toggle todo status" };
+    return { status: "error", message: "Failed to toggle todo status", data: [] };
   }
 };

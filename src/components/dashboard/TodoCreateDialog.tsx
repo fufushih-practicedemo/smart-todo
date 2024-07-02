@@ -2,7 +2,6 @@
 
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Todo } from "./TodoCard";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,6 +13,7 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Todo } from "@/actions/todo";
 
 interface TodoCreateDialogProps {
   onCreate: (todo: Omit<Todo, 'id' | 'isDone'>) => void;
@@ -21,8 +21,8 @@ interface TodoCreateDialogProps {
 
 const todoSchema = z.object({
   title: z.string().min(2).max(50),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   labels: z.array(z.string()).optional(),
 });
 
@@ -88,14 +88,14 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? field.value : <span>選擇日期</span>}
+                            {field.value ? format( field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
+                            selected={field.value}
+                            onSelect={field.onChange}
                           />
                         </PopoverContent>
                       </Popover>
@@ -122,14 +122,14 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? field.value : <span>選擇日期</span>}
+                            {field.value ? format(field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
+                            selected={field.value}
+                            onSelect={field.onChange}
                           />
                         </PopoverContent>
                       </Popover>

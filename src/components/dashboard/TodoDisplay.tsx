@@ -1,43 +1,40 @@
 'use client';
 
-import { useState } from "react";
-import TodoCard, { Todo } from "./TodoCard";
+import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
+import { Todo, createTodo, deleteTodo, toggleTodoStatus, updateTodo } from "@/actions/todo";
 
 interface TodoDisplayProps {
   todos: Todo[];
 }
 
-const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
-  const [todos, setTodos] = useState<Todo[]>(initialTodos);
-
-  const handleToggleStatus = (id: string) => {
-    setTodos(prevTodos => 
-      prevTodos.map(todo => 
-        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
-      )
-    );
+const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
+  const handleToggleStatus = async (id: string) => {
+    const response = await toggleTodoStatus(id);
+    if (response.status !== "success") {
+      console.error("Failed to toggle todo status:", response.message);
+    }
   };
 
-  const handleEdit = (editedTodo: Todo) => {
-    setTodos(prevTodos => 
-      prevTodos.map(todo => 
-        todo.id === editedTodo.id ? editedTodo : todo
-      )
-    );
+  const handleEdit = async (editedTodo: Todo) => {
+    const response = await updateTodo(editedTodo.id, editedTodo);
+    if (response.status !== "success") {
+      console.error("Failed to update todo:", response.message);
+    }
   };
 
-  const handleCreate = (newTodo: Omit<Todo, 'id' | 'isDone'>) => {
-    const todo: Todo = {
-      ...newTodo,
-      id: Math.random().toString(36).substr(2, 9),
-      isDone: false,
-    };
-    setTodos(prevTodos => [...prevTodos, todo]);
+  const handleCreate = async (newTodo: Omit<Todo, 'id' | 'isDone'>) => {
+    const response = await createTodo(newTodo);
+    if (response.status !== "success") {
+      console.error("Failed to create todo:", response.message);
+    }
   };
 
-  const handleCancel = (id: string) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+  const handleCancel = async (id: string) => {
+    const response = await deleteTodo(id);
+    if (response.status !== "success") {
+      console.error("Failed to delete todo:", response.message);
+    }
   };
 
   return (
@@ -56,4 +53,4 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos: initialTodos }) => {
   )
 }
 
-export default TodoDisplay
+export default TodoDisplay;

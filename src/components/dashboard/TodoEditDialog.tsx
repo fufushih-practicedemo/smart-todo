@@ -2,7 +2,6 @@
 
 import { CalendarIcon, Edit, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Todo } from "./TodoCard";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,6 +13,7 @@ import { format, toDate } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Todo } from "@/actions/todo";
 
 interface TodoEditDialogProps {
   todo: Todo;
@@ -25,8 +25,8 @@ const todoSchema: z.ZodSchema<Todo> = z.object({
   id: z.string(),
   title: z.string().min(2).max(50),
   isDone: z.boolean(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   labels: z.array(z.string()).optional(),
   subTodos: z.array(z.lazy(() => todoSchema)).optional(),
 })
@@ -101,10 +101,8 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={value ? toDate(value) : undefined}
-                            onSelect={(date) => {
-                              if(date) onChange(format(date, 'yyyy-MM-dd'));
-                            }}
+                            selected={value}
+                            onSelect={(date) => onChange(date)}
                           />
                         </PopoverContent>
                       </Popover>
@@ -138,10 +136,8 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={value ? toDate(value) : undefined}
-                            onSelect={(date) => {
-                              if(date) onChange(format(date, 'yyyy-MM-dd'));
-                            }}
+                            selected={value}
+                            onSelect={(date) => onChange(date)}
                           />
                         </PopoverContent>
                       </Popover>
