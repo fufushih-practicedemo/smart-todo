@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import TodoEditDialog from "./TodoEditDialog";
 import { Todo } from "@/actions/todo";
+import { format } from "date-fns";
 
 // export interface Todo {
 //   id: string;
@@ -27,7 +28,7 @@ interface TodoCardProps {
 
 const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onEdit, onCancel }) => {
   const today = new Date();
-  const endDate = todo.endDate ? new Date(todo.endDate) : undefined;
+  const endDate = todo.endDate ? new Date() : undefined;
   const isExpired = endDate && endDate < today;
   const cardColor = isExpired ? "bg-gray-200 dark:bg-gray-700" : "";
 
@@ -49,9 +50,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onEdit, onCan
             </CardTitle>
             <div className="text-sm text-gray-500 mt-1">
               {todo.startDate && todo.endDate ? (
-                `${todo.startDate} - ${todo.endDate}`
+                `${format(todo.startDate, 'yyyy-MM-dd')} - ${format(todo.endDate, 'yyyy-MM-dd')}`
               ) : todo.endDate ? (
-                `Due: ${todo.endDate}`
+                `Due: ${format(todo.endDate, 'yyyy-MM-dd')}`
               ) : (
                 "No due date"
               )}
