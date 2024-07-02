@@ -84,12 +84,12 @@ const TodoDashboard: React.FC<TodoDashboardProps> = ({ todos }) => {
             links={[
               {
                 title: "Home",
-                label: "128",
+                label: "",
                 icon: Home,
               },
               {
                 title: "Inbox",
-                label: "128",
+                label: (todos?.length ?? 0).toString(),
                 icon: Inbox,
               },
               {
