@@ -65,6 +65,7 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
       endDate: todo.endDate ?? undefined
     }
 
+    revalidatePath('/')
     return { status: "success", message: "Todo created successfully", data: [filterTodo] };
   } catch (error) {
     return { status: "error", message: "Failed to create todo", data: [] };
@@ -140,7 +141,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
       endDate: todo.endDate ?? undefined
     }
 
-    revalidatePath("/todos");
+    revalidatePath('/')
     return { status: "success", message: "Todo updated successfully", data: [filterTodo] };
   } catch (error) {
     return { status: "error", message: "Failed to update todo", data: [] };
@@ -164,6 +165,7 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<never>> => {
       where: { id, userId: dbUser.id },
     });
 
+    revalidatePath('/')
     return { status: "success", message: "Todo deleted successfully", data: [] };
   } catch (error) {
     return { status: "error", message: "Failed to delete todo", data: [] };
