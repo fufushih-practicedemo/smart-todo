@@ -72,6 +72,58 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
   }
 };
 
+export const createSubTodo = async (parentId: string, values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { status: "error", message: "Unauthorized", data: [] };
+    }
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email }
+    });
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    const validatedFields = TodoSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { status: "error", message: "Invalid fields", data: [] };
+    }
+
+    const parentTodo = await prisma.todo.findUnique({
+      where: { id: parentId, userId: dbUser.id }
+    });
+    if (!parentTodo) {
+      return { status: "error", message: "Parent todo not found", data: [] };
+    }
+
+    const subTodo = await prisma.todo.create({
+      data: {
+        ...validatedFields.data,
+        user: { connect: { id: dbUser.id } },
+        parentTodo: { connect: { id: parentId } },
+        labels: {
+          connectOrCreate: validatedFields.data.labels?.map(label => ({
+            where: { name: label },
+            create: { name: label },
+          })) || [],
+        },
+      },
+    });
+
+    const filterSubTodo: Todo = {
+      ...subTodo,
+      startDate: subTodo.startDate ?? undefined,
+      endDate: subTodo.endDate ?? undefined
+    }
+
+    revalidatePath('/')
+    return { status: "success", message: "SubTodo created successfully", data: [filterSubTodo] };
+  } catch (error) {
+    return { status: "error", message: "Failed to create subTodo", data: [] };
+  }
+};
+
 export const getTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
@@ -101,6 +153,62 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
   } catch (error) {
     console.error("Failed to fetch todos:", error);
     return { status: "error", message: "Failed to fetch todos", data: [] };
+  }
+};
+
+const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> => {
+  const subTodos = await prisma.todo.findMany({
+    where: { parentId: todoId, userId: userId },
+    include: { labels: true },
+  });
+
+  const subTodosWithChildren = await Promise.all(subTodos.map(async (subTodo) => {
+    const children = await fetchSubTodos(subTodo.id, userId);
+    return {
+      ...subTodo,
+      labels: subTodo.labels.map((label) => label.name),
+      startDate: subTodo.startDate ?? undefined,
+      endDate: subTodo.endDate ?? undefined,
+      subTodos: children
+    };
+  }));
+
+  return subTodosWithChildren;
+};
+
+export const getTodosWithSubTodos = async (): Promise<ApiResponse<Todo>> => {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { status: "error", message: "Unauthorized", data: [] };
+    }
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email }
+    });
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    const topLevelTodos = await prisma.todo.findMany({
+      where: { userId: dbUser.id, parentId: null, isDeleted: false },
+      include: { labels: true },
+    });
+
+    const todosWithSubTodos = await Promise.all(topLevelTodos.map(async (todo) => {
+      const subTodos = await fetchSubTodos(todo.id, dbUser.id);
+      return {
+        ...todo,
+        labels: todo.labels.map((label) => label.name),
+        startDate: todo.startDate ?? undefined,
+        endDate: todo.endDate ?? undefined,
+        subTodos: subTodos
+      };
+    }));
+
+    return { status: "success", message: "Todos with subtodos fetched successfully", data: todosWithSubTodos };
+  } catch (error) {
+    console.error("Failed to fetch todos with subtodos:", error);
+    return { status: "error", message: "Failed to fetch todos with subtodos", data: [] };
   }
 };
 
@@ -176,6 +284,57 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
     return { status: "success", message: "Todo deleted successfully", data: [filterTodo] };
   } catch (error) {
     return { status: "error", message: "Failed to delete todo", data: [] };
+  }
+};
+
+const deleteSubTodosRecursively = async (todoId: string, userId: string) => {
+  const subTodos = await prisma.todo.findMany({
+    where: { parentId: todoId, userId: userId },
+  });
+
+  for (const subTodo of subTodos) {
+    await deleteSubTodosRecursively(subTodo.id, userId);
+    await prisma.todo.delete({
+      where: { id: subTodo.id, userId: userId },
+    });
+  }
+};
+
+export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { status: "error", message: "Unauthorized", data: [] };
+    }
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email }
+    });
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    // delete all subtodo
+    await deleteSubTodosRecursively(id, dbUser.id);
+
+    // mark is delete with todo
+    const updatedTodo = await prisma.todo.update({
+      where: { id, userId: dbUser.id },
+      data: { isDeleted: true },
+      include: { labels: true },
+    });
+
+    const filterTodo: Todo = {
+      ...updatedTodo,
+      labels: updatedTodo.labels.map((label) => label.name),
+      startDate: updatedTodo.startDate ?? undefined,
+      endDate: updatedTodo.endDate ?? undefined
+    }
+
+    revalidatePath('/')
+    return { status: "success", message: "Todo and all subtodos deleted successfully", data: [filterTodo] };
+  } catch (error) {
+    console.error("Failed to delete todo and subtodos:", error);
+    return { status: "error", message: "Failed to delete todo and subtodos", data: [] };
   }
 };
 
