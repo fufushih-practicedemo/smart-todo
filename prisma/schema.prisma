@@ -35,7 +35,7 @@ model Todo {
   id         String    @id @default(cuid())
   title      String
   isDone     Boolean   @default(false)
-  isDelete   Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
   startDate  DateTime?
   endDate    DateTime?
   createdAt  DateTime  @default(now())

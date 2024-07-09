@@ -148,7 +148,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
   }
 };
 
-export const deleteTodo = async (id: string): Promise<ApiResponse<never>> => {
+export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
     const user = await getUser();
     if (!user) {
@@ -161,14 +161,84 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<never>> => {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    await prisma.todo.delete({
+    const updatedTodo = await prisma.todo.update({
       where: { id, userId: dbUser.id },
+      data: { isDeleted: true },
     });
 
+    const filterTodo: Todo = {
+      ...updatedTodo,
+      startDate: updatedTodo.startDate ?? undefined,
+      endDate: updatedTodo.endDate ?? undefined
+    }
+
     revalidatePath('/')
-    return { status: "success", message: "Todo deleted successfully", data: [] };
+    return { status: "success", message: "Todo deleted successfully", data: [filterTodo] };
   } catch (error) {
     return { status: "error", message: "Failed to delete todo", data: [] };
+  }
+};
+
+export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { status: "error", message: "Unauthorized", data: [] };
+    }
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email }
+    });
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    const deletedTodos = await prisma.todo.findMany({
+      where: { userId: dbUser.id, isDeleted: true },
+      include: { labels: true },
+    });
+
+    const filteredTodos = deletedTodos.map((todo) => ({
+      ...todo,
+      labels: todo.labels.map((label) => label.name),
+      startDate: todo.startDate ?? undefined,
+      endDate: todo.endDate ?? undefined
+    }));
+
+    return { status: "success", message: "Deleted todos fetched successfully", data: filteredTodos };
+  } catch (error) {
+    console.error("Failed to fetch deleted todos:", error);
+    return { status: "error", message: "Failed to fetch deleted todos", data: [] };
+  }
+};
+
+export const restoreTodo = async (id: string): Promise<ApiResponse<Todo>> => {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { status: "error", message: "Unauthorized", data: [] };
+    }
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email }
+    });
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    const restoredTodo = await prisma.todo.update({
+      where: { id, userId: dbUser.id },
+      data: { isDeleted: false },
+    });
+
+    const filterTodo: Todo = {
+      ...restoredTodo,
+      startDate: restoredTodo.startDate ?? undefined,
+      endDate: restoredTodo.endDate ?? undefined
+    }
+
+    revalidatePath('/')
+    return { status: "success", message: "Todo successfully restored", data: [filterTodo] };
+  } catch (error) {
+    return { status: "error", message: "Failed to restore todo", data: [] };
   }
 };
 
