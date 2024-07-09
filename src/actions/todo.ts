@@ -86,7 +86,7 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
     }
 
     const todos = await prisma.todo.findMany({
-      where: { userId: dbUser.id },
+      where: { userId: dbUser.id, isDeleted: false },
       include: { labels: true },
     });
 
