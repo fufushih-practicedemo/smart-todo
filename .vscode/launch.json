@@ -8,7 +8,7 @@
       "type": "node-terminal",
       "name": "Debug Nextjs (Chrome)",
       "request": "launch",
-      "command": "yarn next dev -p 3535",
+      "command": "pnpm next dev",
       "serverReadyAction": {
         "action": "debugWithChrome",
         "pattern": "- Local:.+(https?://.+)",
