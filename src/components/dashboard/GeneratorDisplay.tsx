@@ -19,7 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-type GeneratedTodo = Omit<Todo, 'id' | 'isDone'>;
+type GeneratedTodo = Omit<Todo, 'id' | 'isDone'> & {
+  subTodos?: GeneratedTodo[];
+};;
 
 const GeneratorDisplay = () => {
   const router = useRouter();
@@ -51,28 +53,29 @@ const GeneratorDisplay = () => {
     return format(new Date(dateString), 'yyyy-MM-dd');
   };
 
-  const TodoPreview = ({ todo }: { todo: GeneratedTodo }) => (
-    <div className="space-y-4">
+  const TodoPreview = ({ todo, level = 0 }: { todo: GeneratedTodo, level?: number }) => (
+    <div className={`space-y-2 ${level > 0 ? 'ml-4' : ''}`}>
       <div>
-        <h3 className="text-lg font-semibold">{todo.title}</h3>
+        <h3 className={`font-semibold ${level === 0 ? 'text-lg' : 'text-base'}`}>{todo.title}</h3>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <CalendarIcon className="w-4 h-4" />
           <span>{formatDate(todo.startDate?.toString())} - {formatDate(todo.endDate?.toString())}</span>
         </div>
       </div>
-      <div className="flex space-x-2">
-        {todo.labels?.map((label, index) => (
-          <Badge key={index} variant="secondary">{label}</Badge>
-        ))}
-      </div>
+      {todo.labels && todo.labels.length > 0 && (
+        <div className="flex space-x-2">
+          {todo.labels.map((label, index) => (
+            <Badge key={index} variant="secondary">{label}</Badge>
+          ))}
+        </div>
+      )}
       {todo.subTodos && todo.subTodos.length > 0 && (
         <div>
           <h4 className="font-medium mb-2">子任務：</h4>
           <ul className="space-y-2">
             {todo.subTodos.map((subTodo, index) => (
-              <li key={index} className="flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span>{subTodo.title}</span>
+              <li key={index}>
+                <TodoPreview todo={subTodo} level={level + 1} />
               </li>
             ))}
           </ul>
@@ -84,23 +87,35 @@ const GeneratorDisplay = () => {
   const handleCreate = async () => {
     if (!generatedTodo) return;
     setIsDialogOpen(false);
-
+  
     try {
       const createResponse = await createTodo(generatedTodo);
       if (createResponse.status === "success") {
         const createdTodo = createResponse.data[0];
         if (generatedTodo.subTodos) {
-          for (const subTodo of generatedTodo.subTodos) {
-            await createSubTodo(createdTodo.id, subTodo);
-          }
+          await createSubTodosRecursively(createdTodo.id, generatedTodo.subTodos);
         }
-        console.log("Todo created successfully with subtodos");
+        console.log("Todo created successfully with all subtodos");
         router.push('/dashboard/inbox');
       } else {
         console.error("Failed to create AI generated todo:", createResponse.message);
       }
     } catch (error) {
       console.error("Error creating todo:", error);
+    }
+  };
+  
+  const createSubTodosRecursively = async (parentId: string, subTodos: GeneratedTodo[]) => {
+    for (const subTodo of subTodos) {
+      const createSubTodoResponse = await createSubTodo(parentId, subTodo);
+      if (createSubTodoResponse.status === "success") {
+        const createdSubTodo = createSubTodoResponse.data[0];
+        if (subTodo.subTodos && subTodo.subTodos.length > 0) {
+          await createSubTodosRecursively(createdSubTodo.id, subTodo.subTodos);
+        }
+      } else {
+        console.error("Failed to create subtodo:", createSubTodoResponse.message);
+      }
     }
   };
 
