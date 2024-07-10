@@ -6,7 +6,7 @@ Please provide the following information in Chinese:
 2. Start date (format: YYYY-MM-DD)
 3. End date (format: YYYY-MM-DD)
 4. Labels (maximum 3, separated by commas)
-5. Sub-todos (maximum 3, each with a title and optional start and end dates)
+5. Sub-todos (minimum 3, maximum 6, each with a title and optional start and end dates)
 
 Schema Type Information:
 type Todo {
@@ -38,6 +38,11 @@ Please respond in JSON format, maintaining the structure of the example provided
       "startDate": "2023-07-16",
       "endDate": "2023-07-20"
     },
+    {
+      "title": "撰寫報告",
+      "startDate": "2023-07-21",
+      "endDate": "2023-07-25"
+    }
   ]
 }
 """
