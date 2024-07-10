@@ -34,6 +34,40 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
   const isExpired = endDate && endDate < today;
   const cardColor = isExpired ? "bg-gray-200 dark:bg-gray-700" : "";
 
+  const renderSubTodos = (subTodos: Todo[]) => (
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value="subtodo">
+        <AccordionTrigger className="w-full no-underline" onClick={(e) => e.stopPropagation()}>
+          子任務: {subTodos.length}
+        </AccordionTrigger>
+        <AccordionContent onClick={(e) => e.stopPropagation()}>
+          <div className="mt-4">
+            <ul className="space-y-2">
+              {subTodos.map((subTodo) => (
+                <li key={subTodo.id}>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={subTodo.isDone}
+                      onChange={() => onToggleStatus(subTodo.id)}
+                      className="mr-2"
+                    />
+                    <span className={cn(subTodo.isDone && "line-through")}>{subTodo.title}</span>
+                  </div>
+                  {subTodo.subTodos && subTodo.subTodos.length > 0 && (
+                    <div className="ml-6 mt-2">
+                      {renderSubTodos(subTodo.subTodos)}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+
   return (
     <Card 
       className={cn("shadow-md", cardColor, "min-h-[6.875rem]")}
@@ -92,39 +126,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
             <TodoCreateSubDialog parentId={todo.id} onCreateSub={onCreateSub} />
           </div>
         </section>
-        {
-          todo.subTodos && todo.subTodos.length > 0 && (
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="subtodo">
-                <AccordionTrigger className="w-full no-underline" onClick={(e)=> {
-                  e.stopPropagation()
-                }}>
-                    子任務: {todo.subTodos?.length}
-                </AccordionTrigger>
-                <AccordionContent onClick={(e) => {e.stopPropagation()}}>
-                  {todo.subTodos && todo.subTodos.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="text-sm font-semibold mb-2">子任務:</h4>
-                      <ul className="space-y-2">
-                        {todo.subTodos.map((subTodo) => {
-                          return <li key={subTodo.id} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={subTodo.isDone}
-                              onChange={() => onToggleStatus(subTodo.id)}
-                              className="mr-2"
-                            />
-                            <span className={cn(subTodo.isDone && "line-through")}>{subTodo.title}</span>
-                          </li>;
-                        })}
-                      </ul>
-                    </div>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )
-        }
+        {todo.subTodos && todo.subTodos.length > 0 && renderSubTodos(todo.subTodos)}
       </CardContent>
     </Card>
   );
