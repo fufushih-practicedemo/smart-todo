@@ -1,18 +1,19 @@
-import { getUser } from "@/lib/lucia"
-import Image from "next/image";
-import { redirect } from "next/navigation";
+import { getTodos } from '@/actions/todo';
+import DashboardDisplay from '@/components/dashboard/DashboardDisplay';
 
 const DashboardPage = async () => {
-  const user = await getUser();
-  if(!user) {
-    redirect('/auth');
+  const response = await getTodos();
+  
+  if (response.status === "error") {
+    return <div>Error: {response.message}</div>;
   }
+  const todos = response.data;
 
   return (
-    <section>
-      dashboard
+    <section className="w-full min-h-screen flex flex-col space-y-2 p-2">
+      <DashboardDisplay todos={todos} />
     </section>
   )
-}
+};
 
-export default DashboardPage
+export default DashboardPage;
