@@ -44,12 +44,11 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
     }
   };
   
-  const uncompletedTodos = todos.filter((todo) => !todo.isDone)
 
   return (
     <section className="w-full min-h-screen flex flex-col space-y-2 p-2">
       <TodoCreateDialog onCreate={handleCreate} />
-      {uncompletedTodos.map((todo) => (
+      {todos.map((todo) => (
         <TodoCard 
           key={todo.id} 
           todo={todo} 
