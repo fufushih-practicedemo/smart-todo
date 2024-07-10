@@ -1,16 +1,26 @@
-import { Todo, getTodos } from "@/actions/todo"
+import { Todo, getTodos, getTodosWithSubTodos } from "@/actions/todo"
 import TodoDisplay from "@/components/dashboard/TodoDisplay"
 
 interface DashboardIndexPageProps {}
 
 const DashboardIndexPage = async ({}: DashboardIndexPageProps) => {
   
-  const res = await getTodos();
+  const Subres = await getTodosWithSubTodos();
+
+  const mergedTodos = (todos: Todo[]): Todo[] => {
+    return todos.map((todo) => ({
+      ...todo,
+      subTodos: todo.subTodos ? mergedTodos(todo.subTodos) : []
+    }))
+  }
+
+  const processedTodos = mergedTodos(Subres.data ?? []);
+
   
   return (
     <div>
       <TodoDisplay 
-        todos={res.data ?? []}    
+        todos={processedTodos}    
       />
     </div>
   )

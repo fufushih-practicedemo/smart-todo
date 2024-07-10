@@ -2,7 +2,7 @@
 
 import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
-import { Todo, createTodo, deleteTodo, toggleTodoStatus, updateTodo } from "@/actions/todo";
+import { Todo, createSubTodo, createTodo, deleteTodo, toggleTodoStatus, updateTodo } from "@/actions/todo";
 
 interface TodoDisplayProps {
   todos: Todo[];
@@ -30,6 +30,13 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
     }
   };
 
+  const handleCreateSubTodo = async (parentId: string, todo: Omit<Todo, 'id' | 'isDone'>) => {
+    const response = await createSubTodo(parentId, todo);
+    if (response.status !== "success") {
+      console.error("Failed to create sub-todo:", response.message);
+    }
+  };
+
   const handleCancel = async (id: string) => {
     const response = await deleteTodo(id);
     if (response.status !== "success") {
@@ -47,6 +54,7 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
           onToggleStatus={handleToggleStatus} 
           onEdit={handleEdit}
           onCancel={handleCancel} 
+          onCreateSub={handleCreateSubTodo}
         />
       ))}
     </section>
