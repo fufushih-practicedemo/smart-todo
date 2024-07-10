@@ -70,74 +70,76 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel>開始日期</FormLabel>
-                    <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format( field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="endDate"
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel>結束日期</FormLabel>
-                    <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                  </FormItem>
-                );
-              }}
-            />
+            <div className="flex flex-row gap-2">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>開始日期</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? format( field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
+              />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>結束日期</FormLabel>
+                      <FormControl>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? format(field.value, 'yyyy-MM-dd') : <span>選擇日期</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
             <FormField
               control={form.control}
               name="labels"
