@@ -43,11 +43,13 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
       console.error("Failed to delete todo:", response.message);
     }
   };
+  
+  const uncompletedTodos = todos.filter((todo) => !todo.isDone)
 
   return (
     <section className="w-full min-h-screen flex flex-col space-y-2 p-2">
       <TodoCreateDialog onCreate={handleCreate} />
-      {todos.map((todo) => (
+      {uncompletedTodos.map((todo) => (
         <TodoCard 
           key={todo.id} 
           todo={todo} 

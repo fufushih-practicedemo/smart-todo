@@ -19,22 +19,22 @@ const TrashTodoDisplay: React.FC<TrashTodoDisplayProps> = ({deletedTodos}) => {
 
   return (
     <>
-          {deletedTodos.map((todo) => (
-            <Card key={todo.id}className="w-full p-2">
-              <CardContent className="flex flex-row items-center justify-between">
-                <CardTitle>{todo.title}</CardTitle>
-                <Button 
-                  type="button" 
-                  onClick={() => {
-                    handleRestore(todo.id);
-                  }}
-                >
-                  恢復
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </>
+      {deletedTodos.map((todo) => (
+        <Card key={todo.id}className="w-full p-2">
+          <CardContent className="flex flex-row items-center justify-between">
+            <CardTitle>{todo.title}</CardTitle>
+            <Button 
+              type="button" 
+              onClick={() => {
+                handleRestore(todo.id);
+              }}
+            >
+              恢復
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </>
   )
 }
 

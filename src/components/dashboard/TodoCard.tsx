@@ -36,17 +36,18 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
 
   return (
     <Card 
-      className={cn("shadow-md", cardColor, "cursor-pointer", "min-h-[6.875rem]")}
-      onClick={() => onToggleStatus(todo.id)}
+      className={cn("shadow-md", cardColor, "min-h-[6.875rem]")}
     >
       <CardContent className="p-4 flex flex-col items-center justify-between">
         <section className="flex flex-row w-full justify-between">
           <div className="flex items-center space-x-3">
-            {todo.isDone ? (
-              <CheckCircle2 className="text-green-500" />
-            ) : (
-              <Circle className="text-gray-400" />
-            )}
+            <button type="button" className="w-fit" onClick={() => onToggleStatus(todo.id)}>
+              {todo.isDone ? (
+                <CheckCircle2 className="text-green-500" />
+              ) : (
+                <Circle className="text-gray-400" />
+              )}
+            </button>
             <div>
               <CardTitle className={cn(todo.isDone && "line-through")}>
                 {todo.title}
