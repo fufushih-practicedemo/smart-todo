@@ -17,6 +17,7 @@ import { Todo } from "@/actions/todo";
 
 interface TodoCreateDialogProps {
   onCreate: (todo: Omit<Todo, 'id' | 'isDone'>) => void;
+  className?: string;
 }
 
 const todoSchema = z.object({
@@ -28,7 +29,7 @@ const todoSchema = z.object({
 
 type TodoFormValues = z.infer<typeof todoSchema>;
 
-const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
+const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ className, onCreate }) => {
   const [open, setOpen] = useState(false);
   const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
@@ -47,7 +48,9 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="fixed bottom-8 right-8 rounded-full w-16 h-16 shadow-lg items-center justify-center">
+        <Button 
+          className={cn("fixed rounded-full w-16 h-16 shadow-lg items-center justify-center", className)}
+        >
           <Plus className="size-8" />
         </Button>
       </DialogTrigger>

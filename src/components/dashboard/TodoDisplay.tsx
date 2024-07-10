@@ -1,5 +1,6 @@
 'use client';
 
+import AiGenerateTodoDialogButton from "./AiGenerateTodoDialogButton";
 import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
 import { Todo, createSubTodo, createTodo, deleteTodo, toggleTodoStatus, updateTodo } from "@/actions/todo";
@@ -47,7 +48,8 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
 
   return (
     <section className="w-full min-h-screen flex flex-col space-y-2 p-2">
-      <TodoCreateDialog onCreate={handleCreate} />
+      <TodoCreateDialog className="bottom-2 right-2" onCreate={handleCreate} />
+      <AiGenerateTodoDialogButton className="bottom-20 right-2" onCreate={handleCreate} />
       {todos.map((todo) => (
         <TodoCard 
           key={todo.id} 
