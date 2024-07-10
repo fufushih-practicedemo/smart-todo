@@ -47,9 +47,8 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ onCreate }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          新建Todo
+        <Button className="fixed bottom-8 right-8 rounded-full w-16 h-16 shadow-lg items-center justify-center">
+          <Plus className="size-8" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
