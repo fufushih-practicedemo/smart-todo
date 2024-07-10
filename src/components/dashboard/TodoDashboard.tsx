@@ -2,7 +2,7 @@
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import Nav from "./Nav";
-import { Inbox, Send, File, Archive, ArchiveX, Trash2, Trash, Home } from "lucide-react";
+import { Inbox, Send, File, Archive, ArchiveX, Trash2, Trash, Home, Bot } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import TodoDisplay from "./TodoDisplay";
 import { usePathname } from "next/navigation";
@@ -37,6 +37,12 @@ const TodoDashboard: React.FC<PropsWithChildren<TodoDashboardProps>> = ({childre
                 label: "",
                 icon: Trash,
                 href: "trash",
+              },
+              {
+                title: "Generator",
+                label: "",
+                icon: Bot,
+                href: "generator",
               },
               {
                 title: "Archive",

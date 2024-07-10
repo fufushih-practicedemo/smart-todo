@@ -1,0 +1,45 @@
+Based on the following description or adjustment suggestion, generate or modify a Todo item:
+Description/Adjustment: [User Input]
+
+Please provide the following information in Chinese:
+1. Todo title (limited to 100 characters)
+2. Start date (format: YYYY-MM-DD)
+3. End date (format: YYYY-MM-DD)
+4. Labels (maximum 3, separated by commas)
+5. Sub-todos (maximum 3, each with a title and optional start and end dates)
+
+Schema Type Information:
+type Todo {
+  title: string
+  isDone: boolean
+  startDate?: Date
+  endDate?: Date
+  labels?: string[]
+  subTodos?: Todo[]
+}
+
+If you're adjusting an existing todo, please consider the current structure and make appropriate modifications.
+
+Please respond in JSON format, maintaining the structure of the example provided earlier. For example:
+"""
+{
+  "title": "完成季度報告",
+  "startDate": "2023-07-10",
+  "endDate": "2023-07-31",
+  "labels": ["工作", "重要", "文檔"],
+  "subTodos": [
+    {
+      "title": "收集銷售數據",
+      "startDate": "2023-07-10",
+      "endDate": "2023-07-15"
+    },
+    {
+      "title": "分析市場趨勢",
+      "startDate": "2023-07-16",
+      "endDate": "2023-07-20"
+    },
+  ]
+}
+"""
+
+Ensure that all text in the response is in Chinese, except for the date formats and JSON structure.
