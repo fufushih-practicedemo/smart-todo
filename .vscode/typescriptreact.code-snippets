@@ -1,0 +1,19 @@
+{
+  "React Component": {
+    "prefix": "crfc",
+    "body": [
+      "\"use client\"",
+      "",
+      "interface ${1:ComponentName}Props {",
+      "",
+      "}",
+      "",
+      "const ${1:ComponentName}: React.FC<${1:ComponentName}Props> = ({}) => {",
+      "  return <div>${1:ComponentName}</div>",
+      "}",
+      "",
+      "export default ${1:ComponentName};"
+    ],
+    "description": "Create a React functional component with TypeScript"
+  }
+}
