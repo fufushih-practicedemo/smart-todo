@@ -1,13 +1,14 @@
-"use client";
+"use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GoogleOAuthButton from "./GoogleOAuthButton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
-interface TabSwitcherProps {
+interface AuthCardProps {
   SignUpTabContent: React.ReactNode;
   SignInTabContent: React.ReactNode;
 }
 
-const TabSwitcher: React.FC<TabSwitcherProps> = ({ SignUpTabContent, SignInTabContent }) => {
+const AuthCard: React.FC<AuthCardProps> = ({ SignUpTabContent, SignInTabContent }) => {
   return (
     <Tabs className="max-w-[500px]" defaultValue="sign-in">
       <TabsList>
@@ -25,4 +26,4 @@ const TabSwitcher: React.FC<TabSwitcherProps> = ({ SignUpTabContent, SignInTabCo
   )
 }
 
-export default TabSwitcher
+export default AuthCard;

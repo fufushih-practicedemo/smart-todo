@@ -6,14 +6,17 @@ import { toast } from 'sonner';
 
 const GoogleOAuthButton = () => {
   return (
-    <Button onClick={async () => {
-      const res = await getGoogleOAuthConsentUrl();
-      if(res.url) {
-        window.location.href = res.url
-      } else {
-        toast.error(res.error);
-      }
-    }}>
+    <Button 
+      type="button"
+      onClick={async () => {
+        const res = await getGoogleOAuthConsentUrl();
+        if(res.url) {
+          window.location.href = res.url
+        } else {
+          toast.error(res.error);
+        }
+      }}
+    >
       <RiGoogleFill className='size-4 mr-2' /> Login with Google
     </Button>
   )

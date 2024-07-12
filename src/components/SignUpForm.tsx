@@ -131,8 +131,8 @@ const SignUpForm = () => {
             )}
           />
         </section>
-        <Button type='submit' className='self-start'>
-                Sign Up
+        <Button type='submit'>
+          Sign Up
         </Button>
       </form>
     </Form>

@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { signIn } from '@/actions/auth';
+import GoogleOAuthButton from './GoogleOAuthButton';
 
 export const signInSchema = z.object({
   email: z.string().email(),
@@ -78,9 +79,12 @@ const SignInForm = () => {
             )}
           />
         </section>
-        <Button type='submit' className='self-start'>
-          Login
-        </Button>
+        <div className='flex flex-col gap-2 w-full'>
+          <Button type='submit'>
+            Login
+          </Button>
+          <GoogleOAuthButton />
+        </div>
       </form>
     </Form>
   )
