@@ -4,7 +4,7 @@ import { signInSchema } from "@/components/SignInForm";
 import { signUpSchema } from "@/components/SignUpForm";
 import { googleOAuthClient } from "@/lib/googleOAuth";
 import { lucia } from "@/lib/lucia";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { generateCodeVerifier, generateState } from "arctic";
 import bcrypt from 'bcrypt';
 import { cookies } from "next/headers";
@@ -13,7 +13,7 @@ import { z } from "zod";
 
 export const signUp = async (values: z.infer<typeof signUpSchema>) => {
   try {
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await db.user.findUnique({
       where: {
         email: values.email
       }
@@ -28,7 +28,7 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(values.password, salt);
 
-    const user = await prisma.user.create({
+    const user = await db.user.create({
       data: {
         email: values.email,
         name: values.name,
@@ -48,7 +48,7 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
 
 export const signIn = async (values: z.infer<typeof signInSchema>) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: {
         email: values.email
       }

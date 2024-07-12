@@ -3,7 +3,7 @@
 import OpenAI from 'openai';
 import { Todo, ApiResponse } from './todo';  // 假設您的 Todo 和 ApiResponse 類型定義在這個文件中
 import { getUser } from '@/lib/lucia';
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -17,7 +17,7 @@ export const generateTodoByGPT = async (description: string): Promise<ApiRespons
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {

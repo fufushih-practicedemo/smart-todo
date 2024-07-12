@@ -1,6 +1,6 @@
 import { googleOAuthClient } from "@/lib/googleOAuth";
 import { lucia } from "@/lib/lucia";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
 
   let userId: string = '';
 
-  const existingUser = await prisma.user.findUnique({
+  const existingUser = await db.user.findUnique({
     where: {
       email: googleData.email
     }
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
   if(existingUser) {
     userId = existingUser.id
   } else {
-    const user = await prisma.user.create({
+    const user = await db.user.create({
       data: {
         name: googleData.name,
         email: googleData.email,

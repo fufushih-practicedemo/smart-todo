@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getUser } from "@/lib/lucia";
 
@@ -35,7 +35,7 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
@@ -47,7 +47,7 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
       return { status: "error", message: "Invalid fields", data: [] };
     }
 
-    const todo = await prisma.todo.create({
+    const todo = await db.todo.create({
       data: {
         ...validatedFields.data,
         user: { connect: { id: dbUser.id } },
@@ -78,7 +78,7 @@ export const createSubTodo = async (parentId: string, values: z.infer<typeof Tod
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
@@ -90,14 +90,14 @@ export const createSubTodo = async (parentId: string, values: z.infer<typeof Tod
       return { status: "error", message: "Invalid fields", data: [] };
     }
 
-    const parentTodo = await prisma.todo.findUnique({
+    const parentTodo = await db.todo.findUnique({
       where: { id: parentId, userId: dbUser.id }
     });
     if (!parentTodo) {
       return { status: "error", message: "Parent todo not found", data: [] };
     }
 
-    const subTodo = await prisma.todo.create({
+    const subTodo = await db.todo.create({
       data: {
         ...validatedFields.data,
         user: { connect: { id: dbUser.id } },
@@ -130,14 +130,14 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const todos = await prisma.todo.findMany({
+    const todos = await db.todo.findMany({
       where: { userId: dbUser.id, isDeleted: false },
       include: { labels: true },
     });
@@ -157,7 +157,7 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
 };
 
 const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> => {
-  const subTodos = await prisma.todo.findMany({
+  const subTodos = await db.todo.findMany({
     where: { parentId: todoId, userId: userId },
     include: { labels: true },
   });
@@ -182,14 +182,14 @@ export const getTodosWithSubTodos = async (): Promise<ApiResponse<Todo>> => {
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const topLevelTodos = await prisma.todo.findMany({
+    const topLevelTodos = await db.todo.findMany({
       where: { userId: dbUser.id, parentId: null, isDeleted: false },
       include: { labels: true },
     });
@@ -218,7 +218,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
@@ -230,7 +230,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
       return { status: "error", message: "Invalid fields", data: [] };
     }
 
-    const todo = await prisma.todo.update({
+    const todo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: {
         ...validatedFields.data,
@@ -262,14 +262,14 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const updatedTodo = await prisma.todo.update({
+    const updatedTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDeleted: true },
     });
@@ -288,13 +288,13 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
 };
 
 const deleteSubTodosRecursively = async (todoId: string, userId: string) => {
-  const subTodos = await prisma.todo.findMany({
+  const subTodos = await db.todo.findMany({
     where: { parentId: todoId, userId: userId },
   });
 
   for (const subTodo of subTodos) {
     await deleteSubTodosRecursively(subTodo.id, userId);
-    await prisma.todo.delete({
+    await db.todo.delete({
       where: { id: subTodo.id, userId: userId },
     });
   }
@@ -306,7 +306,7 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
@@ -317,7 +317,7 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
     await deleteSubTodosRecursively(id, dbUser.id);
 
     // mark is delete with todo
-    const updatedTodo = await prisma.todo.update({
+    const updatedTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDeleted: true },
       include: { labels: true },
@@ -344,14 +344,14 @@ export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const deletedTodos = await prisma.todo.findMany({
+    const deletedTodos = await db.todo.findMany({
       where: { userId: dbUser.id, isDeleted: true },
       include: { labels: true },
     });
@@ -376,14 +376,14 @@ export const restoreTodo = async (id: string): Promise<ApiResponse<Todo>> => {
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const restoredTodo = await prisma.todo.update({
+    const restoredTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDeleted: false },
     });
@@ -407,19 +407,19 @@ export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> =
     if (!user) {
       return { status: "error", message: "Unauthorized", data: [] };
     }
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await db.user.findUnique({
       where: { email: user.email }
     });
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
 
-    const todo = await prisma.todo.findUnique({ where: { id, userId: dbUser.id } });
+    const todo = await db.todo.findUnique({ where: { id, userId: dbUser.id } });
     if (!todo) {
       return { status: "error", message: "Todo not found", data: [] };
     }
 
-    const updatedTodo = await prisma.todo.update({
+    const updatedTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDone: !todo.isDone },
     });
