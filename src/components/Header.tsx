@@ -12,7 +12,7 @@ const Header = async () => {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <nav className="flex items-center space-x-4 lg:space-x-6">
           <a className="mr-6 flex items-center space-x-2" href="/">
-            <span className="font-bold">SupaTodo</span>
+            <span className="font-bold">SmartTodo</span>
           </a>
           <Link href="/dashboard">Dashboard</Link>
         </nav>
