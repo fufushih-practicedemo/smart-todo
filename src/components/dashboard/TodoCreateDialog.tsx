@@ -2,7 +2,7 @@
 
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Todo } from "@/actions/todo";
+import { Textarea } from "../ui/textarea";
 
 interface TodoCreateDialogProps {
   onCreate: (todo: Omit<Todo, 'id' | 'isDone'>) => void;
@@ -22,6 +23,7 @@ interface TodoCreateDialogProps {
 
 const todoSchema = z.object({
   title: z.string().min(2).max(50),
+  description: z.string().max(300, '描述不能超過300個字符').optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   labels: z.array(z.string()).optional(),
@@ -142,6 +144,19 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ className, onCreate
                 }}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => {
+                return <FormItem>
+                  <FormLabel>說明</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="請填寫說明，最多300字" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>;
+              }}
+            />
             <FormField
               control={form.control}
               name="labels"

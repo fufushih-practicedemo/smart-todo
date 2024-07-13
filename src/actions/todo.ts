@@ -8,6 +8,7 @@ import { getUser } from "@/lib/lucia";
 export type Todo = {
   id: string;
   title: string;
+  description?: string;
   isDone: boolean;
   startDate?: Date;
   endDate?: Date;
@@ -23,6 +24,7 @@ export type ApiResponse<T> = {
 
 const TodoSchema = z.object({
   title: z.string().min(1, "標題不能為空").max(100, "標題不能超過100個字符"),
+  description: z.string().max(300, '描述不能超過300個字符').optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   isDone: z.boolean().optional(),
@@ -61,6 +63,7 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
     });
     const filterTodo: Todo = {
       ...todo,
+      description: todo.description ?? undefined,
       startDate: todo.startDate ?? undefined,
       endDate: todo.endDate ?? undefined
     }
@@ -113,6 +116,7 @@ export const createSubTodo = async (parentId: string, values: z.infer<typeof Tod
 
     const filterSubTodo: Todo = {
       ...subTodo,
+      description: subTodo.description ?? undefined,
       startDate: subTodo.startDate ?? undefined,
       endDate: subTodo.endDate ?? undefined
     }
@@ -144,6 +148,7 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
 
     const filtedTodos = todos.map((todo) => ({
       ...todo,
+      description: todo.description ?? undefined,
       labels: todo.labels.map((label) => label.name),
       startDate: todo.startDate ?? undefined,
       endDate: todo.endDate ?? undefined
@@ -166,6 +171,7 @@ const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> =>
     const children = await fetchSubTodos(subTodo.id, userId);
     return {
       ...subTodo,
+      description: subTodo.description ?? undefined,
       labels: subTodo.labels.map((label) => label.name),
       startDate: subTodo.startDate ?? undefined,
       endDate: subTodo.endDate ?? undefined,
@@ -198,6 +204,7 @@ export const getTodosWithSubTodos = async (): Promise<ApiResponse<Todo>> => {
       const subTodos = await fetchSubTodos(todo.id, dbUser.id);
       return {
         ...todo,
+        description: todo.description ?? undefined,
         labels: todo.labels.map((label) => label.name),
         startDate: todo.startDate ?? undefined,
         endDate: todo.endDate ?? undefined,
@@ -245,6 +252,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
     });
     const filterTodo: Todo = {
       ...todo,
+      description: todo.description ?? undefined,
       startDate: todo.startDate ?? undefined,
       endDate: todo.endDate ?? undefined
     }
@@ -276,6 +284,7 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
 
     const filterTodo: Todo = {
       ...updatedTodo,
+      description: updatedTodo.description ?? undefined,
       startDate: updatedTodo.startDate ?? undefined,
       endDate: updatedTodo.endDate ?? undefined
     }
@@ -325,6 +334,7 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
 
     const filterTodo: Todo = {
       ...updatedTodo,
+      description: updatedTodo.description ?? undefined,
       labels: updatedTodo.labels.map((label) => label.name),
       startDate: updatedTodo.startDate ?? undefined,
       endDate: updatedTodo.endDate ?? undefined
@@ -358,6 +368,7 @@ export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
 
     const filteredTodos = deletedTodos.map((todo) => ({
       ...todo,
+      description: todo.description ?? undefined,
       labels: todo.labels.map((label) => label.name),
       startDate: todo.startDate ?? undefined,
       endDate: todo.endDate ?? undefined
@@ -390,6 +401,7 @@ export const restoreTodo = async (id: string): Promise<ApiResponse<Todo>> => {
 
     const filterTodo: Todo = {
       ...restoredTodo,
+      description: restoredTodo.description ?? undefined,
       startDate: restoredTodo.startDate ?? undefined,
       endDate: restoredTodo.endDate ?? undefined
     }
@@ -425,6 +437,7 @@ export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> =
     });
     const filterTodo: Todo = {
       ...updatedTodo,
+      description: todo.description ?? undefined,
       startDate: todo.startDate ?? undefined,
       endDate: todo.endDate ?? undefined
     }

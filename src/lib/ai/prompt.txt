@@ -1,12 +1,13 @@
 Based on the following description or adjustment suggestion, generate or modify a Todo item:
 Description/Adjustment: [User Input]
 
-Please provide the following information in Chinese:
+Please provide the following information in Traditional Chinese:
 1. Todo title (limited to 100 characters)
 2. Start date (format: YYYY-MM-DD)
 3. End date (format: YYYY-MM-DD)
 4. Labels (maximum 3, separated by commas)
-5. Sub-todos (minimum 3, maximum 6, each with a title, optional start and end dates, and optional sub-todos)
+5. Description (limited to 300 characters)
+6. Sub-todos (minimum 3, maximum 9, each with a title and optional sub-todos up to 3 levels deep)
 
 Schema Type Information:
 type Todo {
@@ -15,48 +16,74 @@ type Todo {
   startDate?: Date
   endDate?: Date
   labels?: string[]
-  subTodos?: Todo[]
+  description?: string
+  subTodos?: { 
+    title: string
+    subTodos?: {
+      title: string
+      subTodos?: { title: string }[]
+    }[]
+  }[]
 }
 
 If you're adjusting an existing todo, please consider the current structure and make appropriate modifications.
 
-Please respond in JSON format, maintaining the structure of the example provided. Sub-todos can have their own sub-todos. For example:
+Please respond in JSON format, maintaining the structure of the example provided. The main todo can have start and end dates, as well as a description. Sub-todos should only have titles and optional sub-todos. For example:
 """
 {
-  "title": "完成季度報告",
-  "startDate": "2023-07-10",
-  "endDate": "2023-07-31",
-  "labels": ["工作", "重要", "文檔"],
+  "title": "規劃年度市場策略",
+  "startDate": "2023-01-01",
+  "endDate": "2023-12-31",
+  "labels": ["市場", "策略", "年度計劃"],
+  "description": "制定全面的年度市場策略，包括市場分析、目標設定、策略制定和執行計劃。",
   "subTodos": [
     {
-      "title": "收集銷售數據",
-      "startDate": "2023-07-10",
-      "endDate": "2023-07-15",
+      "title": "市場分析",
       "subTodos": [
         {
-          "title": "整理線上銷售數據",
-          "startDate": "2023-07-10",
-          "endDate": "2023-07-12"
+          "title": "競爭對手分析",
+          "subTodos": [
+            { "title": "識別主要競爭對手" },
+            { "title": "分析競爭對手優勢和劣勢" },
+            { "title": "評估市場份額" }
+          ]
         },
         {
-          "title": "整理線下銷售數據",
-          "startDate": "2023-07-13",
-          "endDate": "2023-07-15"
+          "title": "客戶需求調查",
+          "subTodos": [
+            { "title": "設計調查問卷" },
+            { "title": "進行在線調查" },
+            { "title": "分析調查結果" }
+          ]
         }
       ]
     },
     {
-      "title": "分析市場趨勢",
-      "startDate": "2023-07-16",
-      "endDate": "2023-07-20"
+      "title": "制定營銷策略",
+      "subTodos": [
+        { "title": "確定目標市場" },
+        { "title": "制定產品定位" },
+        { "title": "設計促銷活動" }
+      ]
     },
     {
-      "title": "撰寫報告",
-      "startDate": "2023-07-21",
-      "endDate": "2023-07-25"
+      "title": "執行計劃",
+      "subTodos": [
+        { "title": "分配資源" },
+        { "title": "設置時間表" },
+        { "title": "指派任務" }
+      ]
+    },
+    {
+      "title": "監控和評估",
+      "subTodos": [
+        { "title": "設置關鍵績效指標" },
+        { "title": "定期審查進度" },
+        { "title": "調整策略（如需要）" }
+      ]
     }
   ]
 }
 """
 
-Ensure that all text in the response is in Chinese, except for the date formats and JSON structure.
+Ensure that all text in the response is in Traditional Chinese, except for the date formats and JSON structure.

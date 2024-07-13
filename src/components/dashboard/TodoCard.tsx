@@ -33,7 +33,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
   const endDate = todo.endDate ? new Date() : undefined;
   const isExpired = endDate && endDate < today;
   const cardColor = isExpired ? "bg-gray-200 dark:bg-gray-700" : "";
-  console.log(todo);
+  
   const renderNestedSubTodos = (subTodos: Todo[]) => (
     <ul className="space-y-2 ml-6">
       {subTodos.map((subTodo) => (

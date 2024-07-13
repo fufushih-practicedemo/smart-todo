@@ -32,10 +32,12 @@ model Session {
 }
 
 model Todo {
-  id         String    @id @default(cuid())
-  title      String
-  isDone     Boolean   @default(false)
-  isDeleted  Boolean   @default(false)
+  id          String  @id @default(cuid())
+  title       String
+  isDone      Boolean @default(false)
+  isDeleted   Boolean @default(false)
+  description String?
+
   startDate  DateTime?
   endDate    DateTime?
   createdAt  DateTime  @default(now())

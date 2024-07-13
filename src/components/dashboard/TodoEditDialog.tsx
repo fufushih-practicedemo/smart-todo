@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Todo } from "@/actions/todo";
+import { Textarea } from "../ui/textarea";
 
 interface TodoEditDialogProps {
   todo: Todo;
@@ -25,6 +26,7 @@ const todoSchema: z.ZodSchema<Todo> = z.object({
   id: z.string(),
   title: z.string().min(2).max(50),
   isDone: z.boolean(),
+  description: z.string().max(300, '描述不能超過300個字符').optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   labels: z.array(z.string()).optional(),
@@ -148,6 +150,19 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                 }}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => {
+                return <FormItem>
+                  <FormLabel>說明</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="請填寫說明，最多300字" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>;
+              }}
+            />
             <FormField
               control={form.control}
               name="labels"
