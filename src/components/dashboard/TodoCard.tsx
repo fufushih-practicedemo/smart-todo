@@ -9,6 +9,8 @@ import { Todo } from "@/actions/todo";
 import { format } from "date-fns";
 import TodoCreateSubDialog from "./TodoCreateSubDialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import TodoDetailDialogButton from "./TodoDetailDialogButton";
+
 
 // export interface Todo {
 //   id: string;
@@ -45,7 +47,11 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
               onChange={() => onToggleStatus(subTodo.id)}
               className="mr-2"
             />
-            <span className={cn(subTodo.isDone && "line-through")}>{subTodo.title}</span>
+            <TodoDetailDialogButton todo={subTodo} onToggleStatus={onToggleStatus}>
+              <span className={cn(subTodo.isDone && "line-through")}>
+                {subTodo.title}
+              </span>
+            </TodoDetailDialogButton>
           </div>
           {subTodo.subTodos && subTodo.subTodos.length > 0 && renderNestedSubTodos(subTodo.subTodos)}
         </li>
@@ -69,7 +75,9 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
             </button>
             <div>
               <CardTitle className={cn(todo.isDone && "line-through")}>
-                {todo.title}
+                <TodoDetailDialogButton todo={todo} onToggleStatus={onToggleStatus}>
+                  <span className="hover:underline hover:cursor-pointer">{todo.title}</span>
+                </TodoDetailDialogButton>
               </CardTitle>
               <div className="text-sm text-gray-500 mt-1">
                 {todo.startDate && todo.endDate ? (
@@ -114,7 +122,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
         {todo.subTodos && todo.subTodos.length > 0 && (
           <Accordion type="single" collapsible className="w-full mt-4">
             <AccordionItem value="subtodo">
-              <AccordionTrigger className="w-full no-underline" onClick={(e) => e.stopPropagation()}>
+              <AccordionTrigger className="w-full hover:no-underline" onClick={(e) => e.stopPropagation()}>
                 子任務: {todo.subTodos.length}
               </AccordionTrigger>
               <AccordionContent onClick={(e) => e.stopPropagation()}>
