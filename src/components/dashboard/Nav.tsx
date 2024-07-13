@@ -34,7 +34,7 @@ const Nav: React.FC<NavProps> = ({currentPath = "", links, activeIndex: external
           return (
             <Link
               key={index}
-                href={fullHref}
+              href={fullHref}
               onClick={() => handleClick(index)}
               className={cn(
                 buttonVariants({ variant: isActive ? "default" : "ghost", size: "sm" }),
