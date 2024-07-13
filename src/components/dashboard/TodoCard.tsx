@@ -48,7 +48,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ todo, onToggleStatus, onCreateSub, 
               className="mr-2"
             />
             <TodoDetailDialogButton todo={subTodo} onToggleStatus={onToggleStatus}>
-              <span className={cn(subTodo.isDone && "line-through")}>
+              <span className={cn(subTodo.isDone && "line-through", "hover:underline hover:cursor-pointer")}>
                 {subTodo.title}
               </span>
             </TodoDetailDialogButton>
