@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { Lucia } from 'lucia';
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { db } from './prisma';
