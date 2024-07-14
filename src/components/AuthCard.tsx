@@ -11,9 +11,9 @@ interface AuthCardProps {
 const AuthCard: React.FC<AuthCardProps> = ({ SignUpTabContent, SignInTabContent }) => {
   return (
     <Tabs className="max-w-[500px]" defaultValue="sign-in">
-      <TabsList>
-        <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
-        <TabsTrigger value="sign-in">Sign In</TabsTrigger>
+      <TabsList className="w-full">
+        <TabsTrigger value="sign-up" className="w-[50%]">Sign Up</TabsTrigger>
+        <TabsTrigger value="sign-in" className="w-[50%]">Sign In</TabsTrigger>
       </TabsList>
 
       <TabsContent value="sign-up" className="h-[25rem]">
