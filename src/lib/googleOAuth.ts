@@ -1,3 +1,4 @@
+import 'server-only';
 import { Google } from 'arctic';
 
 export const googleOAuthClient = new Google(
