@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from 'react-hook-form'
 import {
@@ -11,23 +11,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-
 import { z } from "zod"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { signUp } from '@/actions/auth';
+import { signUpSchema } from '@/lib/definitions';
 
-export const signUpSchema = z.object({
-  name: z.string().min(5),
-  email: z.string().email(),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword']
-})
 
 const SignUpForm = () => {
   const router = useRouter()

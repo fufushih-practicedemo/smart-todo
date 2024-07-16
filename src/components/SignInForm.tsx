@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { z } from "zod"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -10,11 +10,8 @@ import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { signIn } from '@/actions/auth';
 import GoogleOAuthButton from './GoogleOAuthButton';
+import { signInSchema } from '@/lib/definitions';
 
-export const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-})
 
 const SignInForm = () => {
   const router = useRouter()
