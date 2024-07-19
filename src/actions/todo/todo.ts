@@ -4,45 +4,14 @@ import { z } from "zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getUser } from "@/lib/lucia";
+import { ApiResponse, Todo, TodoSchema, formatTodo, handleError, handleUserAuth } from "./utils";
 
-export type Todo = {
-  id: string;
-  title: string;
-  description?: string;
-  isDone: boolean;
-  startDate?: Date;
-  endDate?: Date;
-  labels?: string[];
-  subTodos?: Todo[];
-};
-
-export type ApiResponse<T> = {
-  status: "success" | "error";
-  message: string;
-  data: T[];
-};
-
-const TodoSchema = z.object({
-  title: z.string().min(1, "標題不能為空").max(100, "標題不能超過100個字符"),
-  description: z.string().max(300, '描述不能超過300個字符').optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  isDone: z.boolean().optional(),
-  labels: z.array(z.string()).optional(),
-});
 
 export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
-    const user = await getUser();
-    if (!user) {
-      return { status: "error", message: "Unauthorized", data: [] };
-    }
-    const dbUser = await db.user.findUnique({
-      where: { email: user.email }
-    });
-    if (!dbUser) {
-      return { status: "error", message: "User not found", data: [] };
-    }
+    const authResult = await handleUserAuth();
+    if ('error' in authResult) return authResult.error;
+    const { dbUser } = authResult;
 
     const validatedFields = TodoSchema.safeParse(values);
     if (!validatedFields.success) {
@@ -61,17 +30,13 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
         },
       },
     });
-    const filterTodo: Todo = {
-      ...todo,
-      description: todo.description ?? undefined,
-      startDate: todo.startDate ?? undefined,
-      endDate: todo.endDate ?? undefined
-    }
+
+    const formattedTodo = formatTodo(todo);
 
     revalidatePath('/')
-    return { status: "success", message: "Todo created successfully", data: [filterTodo] };
+    return { status: "success", message: "Todo created successfully", data: [formattedTodo] };
   } catch (error) {
-    return { status: "error", message: "Failed to create todo", data: [] };
+    return handleError(error, "Failed to create todo");
   }
 };
 
