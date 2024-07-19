@@ -1,5 +1,3 @@
-"use server";
-
 import { ApiResponse, Todo, TodoSchema, formatTodo, handleError, handleUserAuth } from "./utils";
 import { z } from "zod";
 import { db } from "@/lib/prisma";

@@ -1,8 +1,6 @@
-"use server";
-
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { ApiResponse, Todo, TodoSchema, formatTodo, handleError, handleUserAuth } from "./utils";
+import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth } from "./utils";
 
 export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
   try {

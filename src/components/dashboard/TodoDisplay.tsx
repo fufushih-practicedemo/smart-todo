@@ -2,7 +2,7 @@
 
 import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
-import { Todo, createSubTodo, createTodo, deleteTodo, toggleTodoStatus, updateTodo } from "@/actions/todo";
+import { Todo, createSubTodo, createTodo, deleteTodoAndSubTodos, toggleTodoStatus, updateTodo } from "@/actions/todo";
 
 interface TodoDisplayProps {
   todos: Todo[];
@@ -38,7 +38,7 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
   };
 
   const handleCancel = async (id: string) => {
-    const response = await deleteTodo(id);
+    const response = await deleteTodoAndSubTodos(id);
     if (response.status !== "success") {
       console.error("Failed to delete todo:", response.message);
     }
