@@ -67,6 +67,47 @@ export const restoreTodo = async (id: string): Promise<ApiResponse<Todo>> => {
   }
 };
 
+const restoreSubTodosRecursively = async (todoId: string, userId: string) => {
+  const subTodos = await db.todo.findMany({
+    where: { parentId: todoId, userId }
+  });
+
+  for (const subTodo of subTodos) {
+    await db.todo.update({
+      where: { id: subTodo.id, userId },
+      data: { isDeleted: false }
+    });
+    await restoreSubTodosRecursively(subTodo.id, userId);
+  }
+}
+
+export const restoreTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
+  try {
+    const authResult = await handleUserAuth();
+    if ('error' in authResult) return authResult.error;
+    const { dbUser } = authResult;
+
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    await restoreSubTodosRecursively(id, dbUser.id);
+
+    const restoredTodo = await db.todo.update({
+      where: { id, userId: dbUser.id },
+      data: { isDeleted: false },
+      include: { labels: true },
+    });
+
+    const formattedTodo = formatTodo(restoredTodo);
+
+    revalidatePath('/')
+    return { status: "success", message: "Todo and all subtodos successfully restored", data: [formattedTodo] };
+  } catch (error) {
+    return handleError(error, "Failed to restore todo and subtodos");
+  }
+};
+
 export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
     const authResult = await handleUserAuth();

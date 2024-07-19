@@ -1,6 +1,6 @@
 "use client";
 
-import { Todo, restoreTodo } from "@/actions/todo";
+import { Todo, restoreTodoAndSubTodos } from "@/actions/todo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ interface TrashTodoDisplayProps {
 
 const TrashTodoDisplay: React.FC<TrashTodoDisplayProps> = ({deletedTodos}) => {
   const handleRestore = async (id: string) => {
-    const response = await restoreTodo(id);
+    const response = await restoreTodoAndSubTodos(id);
     if (response.status !== "success") {
       console.error("restore failed")
     }

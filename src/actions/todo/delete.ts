@@ -35,8 +35,9 @@ const deleteSubTodosRecursively = async (todoId: string, userId: string) => {
 
   for (const subTodo of subTodos) {
     await deleteSubTodosRecursively(subTodo.id, userId);
-    await db.todo.delete({
+    await db.todo.update({
       where: { id: subTodo.id, userId: userId },
+      data: { isDeleted: true }
     });
   }
 };
