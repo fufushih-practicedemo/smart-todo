@@ -1,3 +1,5 @@
+import "server-only";
+
 import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth } from "./utils";
 import { db } from "@/lib/prisma";
 

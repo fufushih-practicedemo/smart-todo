@@ -1,3 +1,5 @@
+import "server-only";
+
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth } from "./utils";

@@ -2,7 +2,7 @@
 
 import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
-import { Todo, createSubTodo, createTodo, deleteTodoAndSubTodos, toggleTodoStatus, updateTodo } from "@/actions/todo";
+import { Todo, createSubTodo, createTodo, deleteTodoAndSubTodos, toggleTodoAndSubTodosStatus, updateTodo } from "@/actions/todo";
 
 interface TodoDisplayProps {
   todos: Todo[];
@@ -10,7 +10,7 @@ interface TodoDisplayProps {
 
 const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
   const handleToggleStatus = async (id: string) => {
-    const response = await toggleTodoStatus(id);
+    const response = await toggleTodoAndSubTodosStatus(id);
     if (response.status !== "success") {
       console.error("Failed to toggle todo status:", response.message);
     }
