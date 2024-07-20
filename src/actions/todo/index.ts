@@ -5,7 +5,7 @@ import { createTodo, createSubTodo } from "./create";
 import { updateTodo, toggleTodoStatus, restoreTodo, restoreTodoAndSubTodos, toggleTodoAndSubTodosStatus } from "./update";
 import { deleteTodo, deleteTodoAndSubTodos, getDeletedTodos } from "./delete";
 
-export type { Todo } from "./utils";
+export type { Todo, ApiResponse } from "./utils";
 export {
   getTodos,
   getTodosWithSubTodos,
@@ -18,5 +18,5 @@ export {
   updateTodo,
   deleteTodo,
   deleteTodoAndSubTodos,
-  getDeletedTodos
+  getDeletedTodos,
 };

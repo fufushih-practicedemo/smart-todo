@@ -1,7 +1,7 @@
 "use server";
 
 import OpenAI from 'openai';
-import { Todo, ApiResponse } from './todo';  // 假設您的 Todo 和 ApiResponse 類型定義在這個文件中
+import { Todo, ApiResponse } from './todo'; 
 import { getUser } from '@/lib/lucia';
 import { db } from "@/lib/prisma";
 import fs from 'fs/promises';
