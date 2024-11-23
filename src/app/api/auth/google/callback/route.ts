@@ -15,8 +15,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
     return new Response('Invalid Request', { status: 400 })
   }
 
-  const codeVerifier = cookies().get('codeVerifier')?.value;
-  const savedState = cookies().get('state')?.value;
+  const codeVerifier = (await cookies()).get('codeVerifier')?.value;
+  const savedState = (await cookies()).get('state')?.value;
 
   if(!codeVerifier || !savedState) {
     return new Response('Invalid Request', { status: 400 })
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
 
   const session = await lucia.createSession(userId, {});
   const sessionCookie = await lucia.createSessionCookie(session.id);
-  cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
   return redirect('/dashboard');
 }

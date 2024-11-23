@@ -37,7 +37,7 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
 
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = await lucia.createSessionCookie(session.id);
-    cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return { success: true }
   } catch (error) {
     return { error: "Something went wrong", success: false }
@@ -64,7 +64,7 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
     // successfully login
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = await lucia.createSessionCookie(session.id);
-    cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+    (await cookies()).set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
     return { success: true };
   } catch (error) {
@@ -73,8 +73,9 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
 }
 
 export const logOut = async () => {
-  const sessionCookie = await lucia.createBlankSessionCookie()
-  cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+  const sessionCookie = await lucia.createBlankSessionCookie();
+  const cookieStore = await cookies();
+  cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
   return redirect('/auth')
 }
 
@@ -82,15 +83,16 @@ export const getGoogleOAuthConsentUrl =async () => {
   try {
     const state = generateState();
     const codeVerifier = generateCodeVerifier();
-
-    cookies().set('codeVerifier', codeVerifier, {
+    
+    const cookieStore = await cookies();
+    cookieStore.set('codeVerifier', codeVerifier, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production'
-    })
-    cookies().set('state', state, {
+    });
+    cookieStore.set('state', state, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production'
-    })
+    });
 
     const authUrl = await googleOAuthClient.createAuthorizationURL(state, codeVerifier, {
       scopes: ['email', 'profile']
