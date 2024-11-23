@@ -1,45 +1,55 @@
-import React from 'react'
+'use client';
+import React, { useEffect } from 'react'
 import { Button } from './ui/button'
 import Link from 'next/link'
+import { getUserInfo } from '@/actions/auth'
+import { useRouter } from 'next/navigation'
 
 const LandingSection = () => {
-  return (
-    <div className="min-h-screen w-full bg-gradient-to-r from-slate-400 to-primary">
-      <div className="container py-16">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
-            超級待辦事項應用
-          </h1>
-          <p className="text-xl text-white">
-            輕鬆管理您的任務,提高工作效率
-          </p>
-        </header>
+  const router = useRouter();
 
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-semibold mb-4 text-center">
-            立即開始
-          </h2>
-          <div className="space-y-4">
+  useEffect(() => {
+    const checkAuth = async () => {
+      const user = await getUserInfo();
+      if (user) {
+        router.push('/dashboard');
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-br from-white to-slate-100">
+      <div className="container mx-auto px-4 py-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Smart Todo
+          </h1>
+          <p className="text-xl text-gray-600 mb-12">
+            專注於重要的事，讓生活更有條理
+          </p>
+          
+          <div className="flex justify-center gap-4 mb-16">
             <Link href="/auth" passHref>
-              <Button className="w-full">
-                免費註冊
+              <Button className="px-8 py-6 text-lg">
+                開始使用
               </Button>
             </Link>
           </div>
-        </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-8 text-center">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-2">簡單易用</h3>
-            <p className="text-gray-600">直觀的界面,讓您輕鬆開始使用</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-2">隨時隨地</h3>
-            <p className="text-gray-600">在任何設備上訪問您的待辦事項</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-2">協作功能</h3>
-            <p className="text-gray-600">與團隊成員輕鬆共享和協作</p>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">智能管理</h3>
+              <p className="text-gray-600">智能分類您的任務，讓工作更有效率</p>
+            </div>
+            <div className="p-6 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">簡約設計</h3>
+              <p className="text-gray-600">清晰的界面設計，專注於重要的事情</p>
+            </div>
+            <div className="p-6 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">雲端同步</h3>
+              <p className="text-gray-600">隨時隨地存取您的待辦事項</p>
+            </div>
           </div>
         </div>
       </div>

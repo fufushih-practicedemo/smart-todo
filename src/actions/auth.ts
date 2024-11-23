@@ -2,7 +2,7 @@
 
 import { signInSchema, signUpSchema } from "@/lib/definitions";
 import { googleOAuthClient } from "@/lib/googleOAuth";
-import { lucia } from "@/lib/lucia";
+import { getUser, lucia } from "@/lib/lucia";
 import { db } from "@/lib/prisma";
 import { generateCodeVerifier, generateState } from "arctic";
 import bcrypt from 'bcrypt';
@@ -109,4 +109,9 @@ export const getGoogleOAuthConsentUrl =async () => {
       error: 'Something went wrong'
     }
   }
+}
+
+export const getUserInfo = async () => {
+  const user = await getUser();
+  return user;
 }

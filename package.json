@@ -57,6 +57,7 @@
     "next": "15.0.3",
     "next-themes": "^0.3.0",
     "openai": "^4.52.4",
+    "oslo": "^1.2.0",
     "prisma": "^5.16.1",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-day-picker": "^8.10.1",
@@ -84,7 +85,8 @@
   "pnpm": {
     "overrides": {
       "@types/react": "npm:types-react@19.0.0-rc.1",
-      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
+      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+      "oslo": "1.2.0"
     }
   }
 }
