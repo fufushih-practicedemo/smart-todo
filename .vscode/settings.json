@@ -2,5 +2,14 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "sqltools.connections": [],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "db",
+      "group": "smart-todo",
+      "database": "./prisma/dev.db"
+    }
+  ],
+  "sqltools.useNodeRuntime": true,
 }
