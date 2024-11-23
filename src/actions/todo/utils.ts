@@ -4,16 +4,30 @@ import { getUser } from "@/lib/lucia";
 import { db } from "@/lib/prisma";
 import { z } from "zod";
 
+// Define reminder types as const
+export const REMINDER_TYPES = {
+  NONE: 'NONE',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY'
+} as const;
+
+// Create a type from the values
+export type ReminderType = typeof REMINDER_TYPES[keyof typeof REMINDER_TYPES];
+
 export type ReminderSchedule = {
   id: string;
   isEnabled: boolean;
   startTime: Date;
-  repeatType?: 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
-  repeatDays?: string;
-  repeatDate?: number;
-  repeatStart?: Date;
-  repeatEnd?: Date;
-  lastTriggered?: Date;
+  repeatType: ReminderType | null;
+  repeatDays: string | null;
+  repeatDate: number | null;
+  repeatStart: Date | null;
+  repeatEnd: Date | null;
+  lastTriggered: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  todoId: string;
 };
 
 export type Todo = {
@@ -25,7 +39,7 @@ export type Todo = {
   endDate?: Date;
   labels?: string[];
   subTodos?: Todo[];
-  reminder?: ReminderSchedule;
+  reminder?: ReminderSchedule | null;
 };
 
 export type ApiResponse<T> = {
@@ -37,11 +51,16 @@ export type ApiResponse<T> = {
 export const ReminderSchema = z.object({
   isEnabled: z.boolean().default(true),
   startTime: z.date(),
-  repeatType: z.enum(['NONE', 'DAILY', 'WEEKLY', 'MONTHLY']).optional(),
-  repeatDays: z.string().optional(),
-  repeatDate: z.number().min(1).max(31).optional(),
-  repeatStart: z.date().optional(),
-  repeatEnd: z.date().optional(),
+  repeatType: z.enum([
+    REMINDER_TYPES.NONE,
+    REMINDER_TYPES.DAILY,
+    REMINDER_TYPES.WEEKLY,
+    REMINDER_TYPES.MONTHLY
+  ]).nullable(),
+  repeatDays: z.string().nullable(),
+  repeatDate: z.number().min(1).max(31).nullable(),
+  repeatStart: z.date().nullable(),
+  repeatEnd: z.date().nullable(),
 });
 
 export const TodoSchema = z.object({

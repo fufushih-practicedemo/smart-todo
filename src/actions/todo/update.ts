@@ -23,7 +23,11 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
     const todo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: {
-        ...validatedFields.data,
+        title: validatedFields.data.title,
+        description: validatedFields.data.description,
+        startDate: validatedFields.data.startDate,
+        endDate: validatedFields.data.endDate,
+        isDone: validatedFields.data.isDone ?? false,
         labels: {
           set: [],
           connectOrCreate: validatedFields.data.labels?.map(label => ({
@@ -31,7 +35,42 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
             create: { name: label },
           })) || [],
         },
+        // Update or create reminder with correct types
+        ...(validatedFields.data.reminder && {
+          reminder: {
+            upsert: {
+              create: {
+                isEnabled: validatedFields.data.reminder.isEnabled,
+                startTime: validatedFields.data.reminder.startTime,
+                repeatType: validatedFields.data.reminder.repeatType ?? null,
+                repeatDays: validatedFields.data.reminder.repeatDays ?? null,
+                repeatDate: validatedFields.data.reminder.repeatDate ?? null,
+                repeatStart: validatedFields.data.reminder.repeatStart ?? null,
+                repeatEnd: validatedFields.data.reminder.repeatEnd ?? null,
+              },
+              update: {
+                isEnabled: validatedFields.data.reminder.isEnabled,
+                startTime: validatedFields.data.reminder.startTime,
+                repeatType: validatedFields.data.reminder.repeatType ?? null,
+                repeatDays: validatedFields.data.reminder.repeatDays ?? null,
+                repeatDate: validatedFields.data.reminder.repeatDate ?? null,
+                repeatStart: validatedFields.data.reminder.repeatStart ?? null,
+                repeatEnd: validatedFields.data.reminder.repeatEnd ?? null,
+              }
+            }
+          }
+        }),
+        // Delete reminder if not provided
+        ...(validatedFields.data.reminder === undefined && {
+          reminder: {
+            delete: true
+          }
+        })
       },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const formattedTodo = formatTodo(todo);

@@ -18,15 +18,39 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
 
     const todo = await db.todo.create({
       data: {
-        ...validatedFields.data,
-        user: { connect: { id: dbUser.id } },
+        title: validatedFields.data.title,
+        description: validatedFields.data.description,
+        startDate: validatedFields.data.startDate,
+        endDate: validatedFields.data.endDate,
+        isDone: validatedFields.data.isDone ?? false,
+        user: { 
+          connect: { id: dbUser.id } 
+        },
         labels: {
           connectOrCreate: validatedFields.data.labels?.map(label => ({
             where: { name: label },
             create: { name: label },
           })) || [],
         },
+        // Updated reminder structure
+        ...(validatedFields.data.reminder && {
+          reminder: {
+            create: {
+              isEnabled: validatedFields.data.reminder.isEnabled,
+              startTime: validatedFields.data.reminder.startTime,
+              repeatType: validatedFields.data.reminder.repeatType,
+              repeatDays: validatedFields.data.reminder.repeatDays,
+              repeatDate: validatedFields.data.reminder.repeatDate,
+              repeatStart: validatedFields.data.reminder.repeatStart,
+              repeatEnd: validatedFields.data.reminder.repeatEnd,
+            }
+          }
+        })
       },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const formattedTodo = formatTodo(todo);
@@ -58,16 +82,41 @@ export const createSubTodo = async (parentId: string, values: z.infer<typeof Tod
 
     const subTodo = await db.todo.create({
       data: {
-        ...validatedFields.data,
-        user: { connect: { id: dbUser.id } },
-        parentTodo: { connect: { id: parentId } },
+        title: validatedFields.data.title,
+        description: validatedFields.data.description,
+        startDate: validatedFields.data.startDate,
+        endDate: validatedFields.data.endDate,
+        isDone: validatedFields.data.isDone ?? false,
+        user: { 
+          connect: { id: dbUser.id } 
+        },
+        parentTodo: { 
+          connect: { id: parentId } 
+        },
         labels: {
           connectOrCreate: validatedFields.data.labels?.map(label => ({
             where: { name: label },
             create: { name: label },
           })) || [],
         },
+        ...(validatedFields.data.reminder && {
+          reminder: {
+            create: {
+              isEnabled: validatedFields.data.reminder.isEnabled,
+              startTime: validatedFields.data.reminder.startTime,
+              repeatType: validatedFields.data.reminder.repeatType,
+              repeatDays: validatedFields.data.reminder.repeatDays,
+              repeatDate: validatedFields.data.reminder.repeatDate,
+              repeatStart: validatedFields.data.reminder.repeatStart,
+              repeatEnd: validatedFields.data.reminder.repeatEnd,
+            }
+          }
+        })
       },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const formattedTodo = formatTodo(subTodo);

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth } from "./utils";
+import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth, ReminderType } from "./utils";
 import { db } from "@/lib/prisma";
 
 export const getTodos = async (): Promise<ApiResponse<Todo>> => {
@@ -15,7 +15,10 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
 
     const todos = await db.todo.findMany({
       where: { userId: dbUser.id, isDeleted: false },
-      include: { labels: true },
+      include: { 
+        labels: true,
+        reminder: true 
+      },
     });
 
     const formattedTodos = todos.map((todo) => (formatTodo(todo)))
@@ -29,7 +32,10 @@ export const getTodos = async (): Promise<ApiResponse<Todo>> => {
 const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> => {
   const subTodos = await db.todo.findMany({
     where: { parentId: todoId, userId },
-    include: { labels: true },
+    include: { 
+      labels: true,
+      reminder: true 
+    },
   });
 
   const subTodosWithChildren = await Promise.all(subTodos.map(async (subTodo) => {
@@ -40,6 +46,10 @@ const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> =>
       labels: subTodo.labels.map((label) => label.name),
       startDate: subTodo.startDate ?? undefined,
       endDate: subTodo.endDate ?? undefined,
+      reminder: subTodo.reminder ? {
+        ...subTodo.reminder,
+        repeatType: subTodo.reminder.repeatType as ReminderType | null
+      } : null,
       subTodos: children
     };
   }));

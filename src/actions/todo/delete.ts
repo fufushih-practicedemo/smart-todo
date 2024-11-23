@@ -17,6 +17,10 @@ export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
     const updatedTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDeleted: true },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const formattedTodo = formatTodo(updatedTodo);
@@ -59,7 +63,10 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
     const updatedTodo = await db.todo.update({
       where: { id, userId: dbUser.id },
       data: { isDeleted: true },
-      include: { labels: true },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const formattedTodo = formatTodo(updatedTodo);
@@ -84,7 +91,10 @@ export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
 
     const deletedTodos = await db.todo.findMany({
       where: { userId: dbUser.id, isDeleted: true },
-      include: { labels: true },
+      include: {
+        labels: true,
+        reminder: true
+      }
     });
 
     const filteredTodos = deletedTodos.map((todo) => (formatTodo(todo)));
