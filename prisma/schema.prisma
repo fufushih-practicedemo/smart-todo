@@ -20,7 +20,8 @@ model User {
 
   session Session[]
 
-  todos Todo[]
+  todos         Todo[]
+  notifications Notification[]
 }
 
 model Session {
@@ -38,20 +39,34 @@ model Todo {
   isDeleted   Boolean @default(false)
   description String?
 
-  startDate  DateTime?
-  endDate    DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  labels     Label[]
-  subTodos   Todo[]    @relation("SubTodos")
-  parentTodo Todo?     @relation("SubTodos", fields: [parentId], references: [id])
-  parentId   String?
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  labels        Label[]
+  subTodos      Todo[]         @relation("SubTodos")
+  parentTodo    Todo?          @relation("SubTodos", fields: [parentId], references: [id])
+  parentId      String?
+  notifications Notification[]
 }
 
 model Label {
   id    String @id @default(cuid())
   name  String @unique
   todos Todo[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  isRead    Boolean  @default(false)
+  type      String // 可以是 'TODO_CREATED', 'TODO_UPDATED', 'TODO_DELETED' 等
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+  todoId String?
+  todo   Todo?   @relation(fields: [todoId], references: [id])
 }
