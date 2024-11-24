@@ -3,7 +3,7 @@
 import { getTodos, getTodosWithSubTodos } from "./fetch";
 import { createTodo, createSubTodo } from "./create";
 import { updateTodo, toggleTodoStatus, restoreTodo, restoreTodoAndSubTodos, toggleTodoAndSubTodosStatus } from "./update";
-import { deleteTodo, deleteTodoAndSubTodos, getDeletedTodos } from "./delete";
+import { deleteTodo, deleteTodoAndSubTodos, getDeletedTodos, permanentDeleteTodoAndSubTodos } from "./delete";
 
 export type { 
   Todo, 
@@ -24,5 +24,6 @@ export {
   updateTodo,
   deleteTodo,
   deleteTodoAndSubTodos,
+  permanentDeleteTodoAndSubTodos,
   getDeletedTodos,
 };

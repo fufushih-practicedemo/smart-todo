@@ -39,9 +39,9 @@ const deleteSubTodosRecursively = async (todoId: string, userId: string) => {
 
   for (const subTodo of subTodos) {
     await deleteSubTodosRecursively(subTodo.id, userId);
-    await db.todo.update({
-      where: { id: subTodo.id, userId: userId },
-      data: { isDeleted: true }
+    // delete sub task
+    await db.todo.delete({
+      where: { id: subTodo.id, userId: userId }
     });
   }
 };
@@ -55,6 +55,11 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
     if (!dbUser) {
       return { status: "error", message: "User not found", data: [] };
     }
+
+    // delte reminder first
+    await db.reminderSchedule.deleteMany({
+      where: { todo: { id, userId: dbUser.id } }
+    });
 
     // delete all subtodo
     await deleteSubTodosRecursively(id, dbUser.id);
@@ -74,7 +79,6 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
     revalidatePath('/')
     return { status: "success", message: "Todo and all subtodos deleted successfully", data: [formattedTodo] };
   } catch (error) {
-    // console.error("Failed to delete todo and subtodos:", error);
     return handleError(error, "Failed to delete todo and subtodos");
   }
 };
@@ -103,5 +107,41 @@ export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
   } catch (error) {
     // console.error("Failed to fetch deleted todos:", error);
     return handleError(error, "Failed to fetch deleted todos");
+  }
+};
+
+export const permanentDeleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
+  try {
+    const authResult = await handleUserAuth();
+    if ('error' in authResult) return authResult.error;
+    const { dbUser } = authResult;
+
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    // Delete reminder first
+    await db.reminderSchedule.deleteMany({
+      where: { todo: { id, userId: dbUser.id } }
+    });
+
+    // Delete all subtodos
+    await deleteSubTodosRecursively(id, dbUser.id);
+
+    // Delete the main todo
+    const deletedTodo = await db.todo.delete({
+      where: { id, userId: dbUser.id },
+      include: {
+        labels: true,
+        reminder: true
+      }
+    });
+
+    const formattedTodo = formatTodo(deletedTodo);
+
+    revalidatePath('/')
+    return { status: "success", message: "Todo and subtodos permanently deleted", data: [formattedTodo] };
+  } catch (error) {
+    return handleError(error, "Failed to permanently delete todo and subtodos");
   }
 };
