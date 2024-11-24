@@ -18,10 +18,10 @@ const DashboardDisplay: React.FC<DashboardDisplayProps> = ({ todos }) => {
     const now = new Date();
     const startDate = (() => {
       switch (timeRange) {
-        case 'day': return subDays(now, 1);
-        case 'week': return subDays(now, 7);
-        case 'month': return subDays(now, 30);
-        case 'year': return subDays(now, 365);
+      case 'day': return subDays(now, 1);
+      case 'week': return subDays(now, 7);
+      case 'month': return subDays(now, 30);
+      case 'year': return subDays(now, 365);
       }
     })();
 

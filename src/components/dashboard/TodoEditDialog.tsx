@@ -13,8 +13,9 @@ import { format, toDate } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Todo } from "@/actions/todo";
+import { Todo, ReminderSchedule } from "@/actions/todo";
 import { Textarea } from "../ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface TodoEditDialogProps {
   todo: Todo;
@@ -31,8 +32,21 @@ const todoSchema: z.ZodSchema<Todo> = z.object({
   endDate: z.date().optional(),
   labels: z.array(z.string()).optional(),
   subTodos: z.array(z.lazy(() => todoSchema)).optional(),
-})
-
+  reminder: z.object({
+    id: z.string(),
+    isEnabled: z.boolean(),
+    startTime: z.date(),
+    repeatType: z.enum(['NONE', 'DAILY', 'WEEKLY', 'MONTHLY']).nullable(),
+    repeatDays: z.string().nullable(),
+    repeatDate: z.number().nullable(),
+    repeatStart: z.date().nullable(),
+    repeatEnd: z.date().nullable(),
+    lastTriggered: z.date().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    todoId: z.string(),
+  }).nullable().optional() as z.ZodType<ReminderSchedule | null | undefined>
+});
 
 const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
   const [open, setOpen] = useState(false);
@@ -41,6 +55,20 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
     defaultValues: {
       ...todo,
       labels: todo.labels || [],
+      reminder: {
+        id: todo.reminder?.id || '',
+        isEnabled: todo.reminder?.isEnabled || false,
+        startTime: todo.reminder?.startTime || new Date(),
+        repeatType: todo.reminder?.repeatType || null,
+        repeatDays: todo.reminder?.repeatDays || null,
+        repeatDate: todo.reminder?.repeatDate || null,
+        repeatStart: todo.reminder?.repeatStart || null,
+        repeatEnd: todo.reminder?.repeatEnd || null,
+        lastTriggered: todo.reminder?.lastTriggered || null,
+        createdAt: todo.reminder?.createdAt || new Date(),
+        updatedAt: todo.reminder?.updatedAt || new Date(),
+        todoId: todo.reminder?.todoId || todo.id,
+      }
     }
   });
 
@@ -206,6 +234,108 @@ const TodoEditDialog: React.FC<TodoEditDialogProps> = ({todo, onEdit}) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="reminder.isEnabled"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>提醒</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                      />
+                      <span>啟用提醒</span>
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {form.watch("reminder.isEnabled") && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="reminder.startTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>提醒時間</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          {...field}
+                          value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ''}
+                          onChange={e => field.onChange(new Date(e.target.value))}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="reminder.repeatType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>重複類型</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="選擇重複類型" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="NONE">不重複</SelectItem>
+                          <SelectItem value="DAILY">每天</SelectItem>
+                          <SelectItem value="WEEKLY">每週</SelectItem>
+                          <SelectItem value="MONTHLY">每月</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("reminder.repeatType") === "WEEKLY" && (
+                  <FormField
+                    control={form.control}
+                    name="reminder.repeatDays"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>重複日期</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="輸入星期幾 (1-7，用逗號分隔)"
+                            {...field}
+                            value={field.value || ''}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {form.watch("reminder.repeatType") === "MONTHLY" && (
+                  <FormField
+                    control={form.control}
+                    name="reminder.repeatDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>每月幾號</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            min="1"
+                            max="31"
+                            {...field}
+                            value={field.value?.toString() || ''}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
             <Button type="submit">保存修改</Button>
           </form>
         </Form>

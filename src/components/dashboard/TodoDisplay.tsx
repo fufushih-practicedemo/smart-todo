@@ -17,21 +17,49 @@ const TodoDisplay: React.FC<TodoDisplayProps> = ({ todos }) => {
   };
 
   const handleEdit = async (editedTodo: Todo) => {
-    const response = await updateTodo(editedTodo.id, editedTodo);
+    const todoWithReminder = {
+      ...editedTodo,
+      reminder: editedTodo.reminder ? {
+        ...editedTodo.reminder,
+        startTime: new Date(editedTodo.reminder.startTime),
+        repeatStart: editedTodo.reminder.repeatStart ? new Date(editedTodo.reminder.repeatStart) : null,
+        repeatEnd: editedTodo.reminder.repeatEnd ? new Date(editedTodo.reminder.repeatEnd) : null,
+      } : undefined
+    };
+    
+    const response = await updateTodo(todoWithReminder.id, todoWithReminder);
     if (response.status !== "success") {
       console.error("Failed to update todo:", response.message);
     }
   };
 
   const handleCreate = async (newTodo: Omit<Todo, 'id' | 'isDone'>) => {
-    const response = await createTodo(newTodo);
+    const todoWithFormattedReminder = {
+      ...newTodo,
+      reminder: newTodo.reminder ? {
+        ...newTodo.reminder,
+        startTime: new Date(newTodo.reminder.startTime),
+        repeatStart: newTodo.reminder.repeatStart ? new Date(newTodo.reminder.repeatStart) : null,
+        repeatEnd: newTodo.reminder.repeatEnd ? new Date(newTodo.reminder.repeatEnd) : null,
+      } : undefined
+    };
+    const response = await createTodo(todoWithFormattedReminder);
     if (response.status !== "success") {
       console.error("Failed to create todo:", response.message);
     }
   };
 
   const handleCreateSubTodo = async (parentId: string, todo: Omit<Todo, 'id' | 'isDone'>) => {
-    const response = await createSubTodo(parentId, todo);
+    const todoWithFormattedReminder = {
+      ...todo,
+      reminder: todo.reminder ? {
+        ...todo.reminder,
+        startTime: new Date(todo.reminder.startTime),
+        repeatStart: todo.reminder.repeatStart ? new Date(todo.reminder.repeatStart) : null,
+        repeatEnd: todo.reminder.repeatEnd ? new Date(todo.reminder.repeatEnd) : null,
+      } : undefined
+    };
+    const response = await createSubTodo(parentId, todoWithFormattedReminder);
     if (response.status !== "success") {
       console.error("Failed to create sub-todo:", response.message);
     }

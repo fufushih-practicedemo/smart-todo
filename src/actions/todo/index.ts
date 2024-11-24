@@ -5,7 +5,13 @@ import { createTodo, createSubTodo } from "./create";
 import { updateTodo, toggleTodoStatus, restoreTodo, restoreTodoAndSubTodos, toggleTodoAndSubTodosStatus } from "./update";
 import { deleteTodo, deleteTodoAndSubTodos, getDeletedTodos } from "./delete";
 
-export type { Todo, ApiResponse } from "./utils";
+export type { 
+  Todo, 
+  ApiResponse,
+  ReminderType,
+  ReminderSchedule, 
+} from "./utils";
+
 export {
   getTodos,
   getTodosWithSubTodos,
