@@ -5,7 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import { Todo } from '@/actions/todo';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const locales = {
   'zh-TW': zhTW
@@ -26,6 +26,21 @@ interface TodoCalendarDisplayProps {
 const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState<View>(Views.MONTH);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile && view === Views.WEEK) {
+        setView(Views.DAY);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [view]);
 
   const events = todos.map(todo => ({
     id: todo.id,
@@ -49,11 +64,11 @@ const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
   };
 
   return (
-    <div className="h-[calc(100vh-200px)]">
+    <div className={`${isMobile ? 'h-[calc(100vh-150px)]' : 'h-[calc(100vh-200px)]'}`}>
       <Calendar
         localizer={localizer}
         events={events}
-        views={[Views.MONTH, Views.WEEK]}
+        views={isMobile ? [Views.MONTH, Views.DAY] : [Views.MONTH, Views.WEEK]}
         defaultView={Views.MONTH}
         view={view}
         onView={setView}
@@ -69,6 +84,8 @@ const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
             backgroundColor: event.isDone ? '#4CAF50' : '#2196F3',
             border: 'none',
             borderRadius: '4px',
+            padding: isMobile ? '2px' : '4px',
+            fontSize: isMobile ? '12px' : '14px',
           },
         })}
       />
