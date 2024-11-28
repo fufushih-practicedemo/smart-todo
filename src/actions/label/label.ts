@@ -1,0 +1,120 @@
+import "server-only";
+
+import { z } from "zod";
+import { db } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { Label, ApiResponse, handleError, handleUserAuth, LabelSchema } from './utils';
+
+// CRUD Actions
+export const createLabel = async (values: z.infer<typeof LabelSchema>): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const validatedFields = LabelSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { status: "error", message: "Invalid fields", data: [] };
+    }
+
+    const label = await db.label.create({
+      data: {
+        name: validatedFields.data.name,
+      },
+    });
+
+    revalidatePath('/');
+    return { status: "success", message: "Label created successfully", data: [label] };
+  } catch (error) {
+    return handleError(error, "Failed to create label");
+  }
+};
+
+export const getLabels = async (): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const labels = await db.label.findMany({
+      orderBy: { name: 'asc' }
+    });
+
+    return { status: "success", message: "Labels fetched successfully", data: labels };
+  } catch (error) {
+    return handleError(error, "Failed to fetch labels");
+  }
+};
+
+export const updateLabel = async (id: string, values: z.infer<typeof LabelSchema>): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const validatedFields = LabelSchema.safeParse(values);
+    if (!validatedFields.success) {
+      return { status: "error", message: "Invalid fields", data: [] };
+    }
+
+    const label = await db.label.update({
+      where: { id },
+      data: {
+        name: validatedFields.data.name,
+      },
+    });
+
+    revalidatePath('/');
+    return { status: "success", message: "Label updated successfully", data: [label] };
+  } catch (error) {
+    return handleError(error, "Failed to update label");
+  }
+};
+
+export const deleteLabel = async (id: string): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const label = await db.label.delete({
+      where: { id },
+    });
+
+    revalidatePath('/');
+    return { status: "success", message: "Label deleted successfully", data: [label] };
+  } catch (error) {
+    return handleError(error, "Failed to delete label");
+  }
+};
+
+// Additional utility functions
+export const getLabelsByTodo = async (todoId: string): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const todo = await db.todo.findUnique({
+      where: { id: todoId },
+      include: { labels: true }
+    });
+
+    if (!todo) {
+      return { status: "error", message: "Todo not found", data: [] };
+    }
+
+    return { status: "success", message: "Labels fetched successfully", data: todo.labels };
+  } catch (error) {
+    return handleError(error, "Failed to fetch labels for todo");
+  }
+};
+
+export const searchLabels = async (searchTerm: string): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const labels = await db.label.findMany({
+      where: {
+        name: {
+          contains: searchTerm
+        }
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    return { status: "success", message: "Labels searched successfully", data: labels };
+  } catch (error) {
+    return handleError(error, "Failed to search labels");
+  }
+};
