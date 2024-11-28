@@ -1,10 +1,11 @@
 'use client';
 
-import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
 import { Todo } from '@/actions/todo';
+import { useState } from 'react';
 
 const locales = {
   'zh-TW': zhTW
@@ -13,7 +14,7 @@ const locales = {
 const localizer = dateFnsLocalizer({
   format: (date: Date, formatStr: string) => format(date, formatStr, { locale: zhTW }),
   parse: (str: string, formatStr: string) => parse(str, formatStr, new Date(), { locale: zhTW }),
-  startOfWeek: () => startOfWeek(new Date(), { locale: zhTW, weekStartsOn: 1 }),
+  startOfWeek: () => startOfWeek(new Date(), { locale: zhTW }),
   getDay,
   locales,
 });
@@ -23,13 +24,16 @@ interface TodoCalendarDisplayProps {
 }
 
 const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
+  const [date, setDate] = useState(new Date());
+  const [view, setView] = useState<View>(Views.MONTH);
+
   const events = todos.map(todo => ({
     id: todo.id,
     title: todo.title,
-    start: todo.startDate || todo.endDate || new Date(),
-    end: todo.endDate || todo.startDate || new Date(),
+    start: new Date(todo.startDate || todo.endDate || new Date()),
+    end: new Date(todo.endDate || todo.startDate || new Date()),
     isDone: todo.isDone,
-    allDay: true, // 設定為全天事件
+    allDay: true,
   }));
 
   const messages = {
@@ -41,6 +45,7 @@ const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
     next: '下一個',
     today: '今天',
     agenda: '議程',
+    showMore: (total: number) => `+${total} 更多`,
   };
 
   return (
@@ -50,10 +55,15 @@ const TodoCalendarDisplay: React.FC<TodoCalendarDisplayProps> = ({ todos }) => {
         events={events}
         views={[Views.MONTH, Views.WEEK]}
         defaultView={Views.MONTH}
+        view={view}
+        onView={setView}
+        date={date}
+        onNavigate={setDate}
         startAccessor="start"
         endAccessor="end"
         messages={messages}
         culture='zh-TW'
+        popup
         eventPropGetter={(event) => ({
           style: {
             backgroundColor: event.isDone ? '#4CAF50' : '#2196F3',
