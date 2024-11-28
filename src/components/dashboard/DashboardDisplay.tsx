@@ -96,121 +96,155 @@ const DashboardDisplay: React.FC<DashboardDisplayProps> = ({ todos }) => {
   }, [todos]);
 
   return (
-    <>
-      <h1 className="text-2xl font-bold mb-4">儀表板</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <Card>
+    <div className="container mx-auto px-4">
+      <h1 className="text-xl md:text-2xl font-bold mb-4">儀表板</h1>
+      
+      {/* 統計卡片區域 - 在小螢幕上單列，中等螢幕上雙列 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card className="h-full">
           <CardHeader>
-            <CardTitle>今日任務</CardTitle>
+            <CardTitle className="text-lg md:text-xl">今日任務</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p>總數: {todayStats.total}</p>
-            <p>已完成: {todayStats.completed}</p>
-            <p>完成度: {todayStats.completionRate}%</p>
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">總數</p>
+                <p className="text-lg font-semibold">{todayStats.total}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">已完成</p>
+                <p className="text-lg font-semibold">{todayStats.completed}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">完成度</p>
+                <p className="text-lg font-semibold">{todayStats.completionRate}%</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="h-full">
           <CardHeader>
-            <CardTitle>總共任務</CardTitle>
+            <CardTitle className="text-lg md:text-xl">總共任務</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p>總數: {totalStats.total}</p>
-            <p>已完成: {totalStats.completed}</p>
-            <p>完成度: {totalStats.completionRate}%</p>
+          <CardContent className="space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">總數</p>
+                <p className="text-lg font-semibold">{totalStats.total}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">已完成</p>
+                <p className="text-lg font-semibold">{totalStats.completed}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">完成度</p>
+                <p className="text-lg font-semibold">{totalStats.completionRate}%</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mb-4">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>待辦事項狀態分佈</CardTitle>
-          <Select value={pieChartTimeRange} onValueChange={(value: 'day' | 'week' | 'month' | 'year') => setPieChartTimeRange(value)}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="選擇時間範圍" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="day">今天</SelectItem>
-              <SelectItem value="week">本週</SelectItem>
-              <SelectItem value="month">本月</SelectItem>
-              <SelectItem value="year">本年</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardHeader>
-        <CardContent>
-          <ReactECharts 
-            option={{
-              tooltip: {
-                trigger: 'item'
-              },
-              legend: {
-                orient: 'vertical',
-                left: 'left'
-              },
-              series: [
-                {
-                  name: '待辦事項狀態',
-                  type: 'pie',
-                  radius: '50%',
-                  data: getPieChartData(pieChartTimeRange),
-                  emphasis: {
-                    itemStyle: {
-                      shadowBlur: 10,
-                      shadowOffsetX: 0,
-                      shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                  }
-                }
-              ]
-            }} 
-            style={{ height: '300px' }} 
-          />
-        </CardContent>
-      </Card>
-      
-      <Card className="mb-4">
+      <Card>
         <CardHeader>
-          <CardTitle>年度任務分佈圖</CardTitle>
+          <CardTitle className="text-lg md:text-xl">年度任務分佈圖</CardTitle>
         </CardHeader>
         <CardContent>
-          <ReactECharts 
-            option={{
-              tooltip: {
-                position: 'top',
-                formatter: (params: any) => {
-                  return `${params.data[0]}<br/>待辦事項數量: ${params.data[1]}`;
-                }
-              },
-              visualMap: {
-                min: 0,
-                max: 10,
-                type: 'continuous',
-                orient: 'horizontal',
-                left: 'center',
-                top: 'top'
-              },
-              calendar: {
-                top: 70,
-                left: 30,
-                right: 30,
-                cellSize: ['auto', 20],
-                range: new Date().getFullYear(),
-                itemStyle: {
-                  borderWidth: 0.5
+          <div className="w-full aspect-[2/0.8] md:aspect-[2/0.6]">
+            <ReactECharts 
+              option={{
+                tooltip: {
+                  position: 'top',
+                  formatter: (params: any) => {
+                    return `${params.data[0]}<br/>待辦事項數量: ${params.data[1]}`;
+                  }
                 },
-                yearLabel: { show: true }
-              },
-              series: {
-                type: 'heatmap',
-                coordinateSystem: 'calendar',
-                calendarIndex: 0,
-                data: getCalendarData
-              }
-            }}
-            style={{ height: '400px' }}
-          />
+                visualMap: {
+                  min: 0,
+                  max: 10,
+                  type: 'continuous',
+                  orient: 'horizontal',
+                  left: 'center',
+                  top: 'top'
+                },
+                calendar: {
+                  top: 70,
+                  left: 30,
+                  right: 30,
+                  cellSize: ['auto', 20],
+                  range: new Date().getFullYear(),
+                  itemStyle: {
+                    borderWidth: 0.5
+                  },
+                  yearLabel: { show: true }
+                },
+                series: {
+                  type: 'heatmap',
+                  coordinateSystem: 'calendar',
+                  calendarIndex: 0,
+                  data: getCalendarData
+                }
+              }}
+              style={{ height: '100%', minHeight: '300px', maxHeight: '400px' }}
+            />
+          </div>
         </CardContent>
       </Card>
-    </>
+
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+            <CardTitle className="text-lg md:text-xl">待辦事項狀態分佈</CardTitle>
+            <Select 
+              value={pieChartTimeRange} 
+              onValueChange={(value: 'day' | 'week' | 'month' | 'year') => setPieChartTimeRange(value)}
+            >
+              <SelectTrigger className="w-[120px] md:w-[150px]">
+                <SelectValue placeholder="選擇時間範圍" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">今天</SelectItem>
+                <SelectItem value="week">本週</SelectItem>
+                <SelectItem value="month">本月</SelectItem>
+                <SelectItem value="year">本年</SelectItem>
+              </SelectContent>
+            </Select>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full aspect-[2/0.8] md:aspect-[2/0.6]">
+              <ReactECharts 
+                option={{
+                  tooltip: {
+                    trigger: 'item'
+                  },
+                  legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                  },
+                  series: [
+                    {
+                      name: '待辦事項狀態',
+                      type: 'pie',
+                      radius: '50%',
+                      data: getPieChartData(pieChartTimeRange),
+                      emphasis: {
+                        itemStyle: {
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                      }
+                    }
+                  ]
+                }}
+                style={{ height: '100%', minHeight: '300px', maxHeight: '400px' }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
