@@ -1,5 +1,4 @@
 import { getDeletedTodos, restoreTodo } from "@/actions/todo"
-import TodoDisplay from "@/components/dashboard/TodoDisplay"
 import TrashTodoDisplay from "@/components/dashboard/TrashTodoDisplay";
 import { Button } from "@/components/ui/button";
 
