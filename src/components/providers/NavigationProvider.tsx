@@ -1,6 +1,6 @@
 'use client';
 
-import { LucideIcon, Home, Inbox, Trash, Bot, Archive } from "lucide-react";
+import { LucideIcon, Home, Inbox, Trash, Bot, Archive, Tag } from "lucide-react";
 import { createContext, useContext } from "react";
 
 interface NavLink {
@@ -26,6 +26,12 @@ const navigationLinks = [
     label: "",
     icon: Inbox,
     href: "inbox",
+  },
+  {
+    title: "Tags",
+    label: "",
+    icon: Tag,
+    href: "tags",
   },
   {
     title: "Trash",
