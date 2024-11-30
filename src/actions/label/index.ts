@@ -1,7 +1,7 @@
 "use server";
 
 export type { 
-  LabelSchema, Label, ApiResponse
+  LABEL_TYPES, LabelSchema, Label, ApiResponse
 } from "./utils";
 import { 
   // CRUD Actions

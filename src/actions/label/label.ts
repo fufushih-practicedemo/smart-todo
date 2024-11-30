@@ -3,7 +3,13 @@ import "server-only";
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { Label, ApiResponse, handleError, handleUserAuth, LabelSchema } from './utils';
+import { 
+  Label, 
+  ApiResponse, 
+  handleError, 
+  handleUserAuth, 
+  LabelSchema,
+} from './utils';
 
 // CRUD Actions
 export const createLabel = async (values: z.infer<typeof LabelSchema>): Promise<ApiResponse<Label>> => {
@@ -18,8 +24,9 @@ export const createLabel = async (values: z.infer<typeof LabelSchema>): Promise<
     const label = await db.label.create({
       data: {
         name: validatedFields.data.name,
+        type: validatedFields.data.type,
       },
-    });
+    }) as Label;
 
     revalidatePath('/');
     return { status: "success", message: "Label created successfully", data: [label] };
@@ -33,8 +40,13 @@ export const getLabels = async (): Promise<ApiResponse<Label>> => {
     await handleUserAuth();
 
     const labels = await db.label.findMany({
-      orderBy: { name: 'asc' }
-    });
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        type: true
+      }
+    }) as Label[];
 
     return { status: "success", message: "Labels fetched successfully", data: labels };
   } catch (error) {
@@ -55,8 +67,14 @@ export const updateLabel = async (id: string, values: z.infer<typeof LabelSchema
       where: { id },
       data: {
         name: validatedFields.data.name,
+        type: validatedFields.data.type,
       },
-    });
+      select: {
+        id: true,
+        name: true,
+        type: true
+      }
+    }) as Label;
 
     revalidatePath('/');
     return { status: "success", message: "Label updated successfully", data: [label] };
@@ -71,7 +89,12 @@ export const deleteLabel = async (id: string): Promise<ApiResponse<Label>> => {
 
     const label = await db.label.delete({
       where: { id },
-    });
+      select: {
+        id: true,
+        name: true,
+        type: true
+      }
+    }) as Label;
 
     revalidatePath('/');
     return { status: "success", message: "Label deleted successfully", data: [label] };
@@ -87,8 +110,16 @@ export const getLabelsByTodo = async (todoId: string): Promise<ApiResponse<Label
 
     const todo = await db.todo.findUnique({
       where: { id: todoId },
-      include: { labels: true }
-    });
+      include: {
+        labels: {
+          select: {
+            id: true,
+            name: true,
+            type: true
+          }
+        }
+      }
+    }) as { labels: Label[] };
 
     if (!todo) {
       return { status: "error", message: "Todo not found", data: [] };
@@ -110,8 +141,13 @@ export const searchLabels = async (searchTerm: string): Promise<ApiResponse<Labe
           contains: searchTerm
         }
       },
-      orderBy: { name: 'asc' }
-    });
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        type: true
+      }
+    }) as Label[];
 
     return { status: "success", message: "Labels searched successfully", data: labels };
   } catch (error) {
