@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Todo } from "@/actions/todo";
 import { Textarea } from "../ui/textarea";
+import { LabelInput } from "@/components/dashboard/LabelInput";
 
 interface TodoCreateDialogProps {
   onCreate: (todo: Omit<Todo, 'id' | 'isDone'>) => void;
@@ -164,38 +165,10 @@ const TodoCreateDialog: React.FC<TodoCreateDialogProps> = ({ className, onCreate
                 <FormItem>
                   <FormLabel>標籤</FormLabel>
                   <FormControl>
-                    <div className="flex flex-wrap gap-2">
-                      {field.value?.map((label, index) => (
-                        <div key={index} className="flex items-center bg-gray-200 rounded-full px-3 py-1">
-                          <span>{label}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const newLabels = field.value?.filter((_, i) => i !== index);
-                              field.onChange(newLabels);
-                            }}
-                            className="ml-2 text-red-500"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                      <Input
-                        placeholder="添加標籤"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            const input = e.target as HTMLInputElement;
-                            const newLabel = input.value.trim();
-                            if (newLabel && !field.value?.includes(newLabel)) {
-                              field.onChange([...(field.value || []), newLabel]);
-                              input.value = '';
-                            }
-                          }
-                        }}
-                        className="w-24 h-8"
-                      />
-                    </div>
+                    <LabelInput
+                      value={field.value || []}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}
