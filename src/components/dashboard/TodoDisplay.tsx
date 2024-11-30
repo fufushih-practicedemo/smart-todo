@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import TodoListDisplay from "./TodoListDisplay";
 import TodoCalendarDisplay from "./TodoCalendarDisplay";
+import TodoKanbanDisplay from "./TodoKanbanDisplay";
 import { Todo } from '@/actions/todo';
 
 interface TodoDisplayProps {
@@ -11,7 +12,7 @@ interface TodoDisplayProps {
 }
 
 const TodoDisplay = ({ todos }: TodoDisplayProps) => {
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>('list');
 
   return (
     <div className="p-4">
@@ -28,13 +29,17 @@ const TodoDisplay = ({ todos }: TodoDisplayProps) => {
         >
           Calendar View
         </Button>
+        <Button 
+          variant={viewMode === 'kanban' ? 'default' : 'outline'}
+          onClick={() => setViewMode('kanban')}
+        >
+          Kanban View
+        </Button>
       </div>
 
-      {viewMode === 'list' ? (
-        <TodoListDisplay todos={todos} />
-      ) : (
-        <TodoCalendarDisplay todos={todos} />
-      )}
+      {viewMode === 'list' && <TodoListDisplay todos={todos} />}
+      {viewMode === 'calendar' && <TodoCalendarDisplay todos={todos} />}
+      {viewMode === 'kanban' && <TodoKanbanDisplay todos={todos} />}
     </div>
   );
 };

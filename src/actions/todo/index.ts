@@ -2,7 +2,7 @@
 
 import { getTodos, getTodosWithSubTodos } from "./fetch";
 import { createTodo, createSubTodo } from "./create";
-import { updateTodo, toggleTodoStatus, restoreTodo, restoreTodoAndSubTodos, toggleTodoAndSubTodosStatus } from "./update";
+import { updateTodo, toggleTodoStatus, restoreTodo, restoreTodoAndSubTodos, toggleTodoAndSubTodosStatus, updateTodoStatus } from "./update";
 import { deleteTodo, deleteTodoAndSubTodos, getDeletedTodos, permanentDeleteTodoAndSubTodos } from "./delete";
 
 export type { 
@@ -20,6 +20,7 @@ export {
   toggleTodoStatus,
   restoreTodoAndSubTodos,
   toggleTodoAndSubTodosStatus,
+  updateTodoStatus,
   restoreTodo,
   updateTodo,
   deleteTodo,

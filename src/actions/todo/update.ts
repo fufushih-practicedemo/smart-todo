@@ -217,3 +217,50 @@ export const toggleTodoAndSubTodosStatus = async (id: string): Promise<ApiRespon
     return handleError(error, "Failed to toggle todo and subtodos status");
   }
 };
+
+export const updateTodoStatus = async (id: string, status: string): Promise<ApiResponse<Todo>> => {
+  try {
+    const authResult = await handleUserAuth();
+    if ('error' in authResult) return authResult.error;
+    const { dbUser } = authResult;
+
+    if (!dbUser) {
+      return { status: "error", message: "User not found", data: [] };
+    }
+
+    const todo = await db.todo.findUnique({
+      where: { id, userId: dbUser.id },
+      include: { labels: true, reminder: true }
+    });
+
+    if (!todo) {
+      return { status: "error", message: "Todo not found", data: [] };
+    }
+
+    // Remove old status label
+    const oldStatusLabel = todo.labels.find(l => l.type === 'STATUS');
+    
+    const updatedTodo = await db.todo.update({
+      where: { id, userId: dbUser.id },
+      data: {
+        startDate: todo.startDate,
+        isDone: status.toLowerCase() === 'done',
+        labels: {
+          disconnect: oldStatusLabel ? [{ id: oldStatusLabel.id }] : undefined,
+          connect: [{ name: status }]
+        }
+      },
+      include: {
+        labels: true,
+        reminder: true
+      }
+    });
+
+    const formattedTodo = formatTodo(updatedTodo);
+
+    revalidatePath('/')
+    return { status: "success", message: "Todo status updated successfully", data: [formattedTodo] };
+  } catch (error) {
+    return handleError(error, "Failed to update todo status");
+  }
+};
