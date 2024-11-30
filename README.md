@@ -1,6 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Smart Todo
+
+A modern, intelligent todo management application built with Next.js and TypeScript.
+
+## Features
+
+- 🧠 AI-powered task generation and management
+- 📱 Responsive web design
+- 🏷️ Custom label management
+- 📅 Task scheduling with reminders
+- 📊 Nested subtasks support
+- ☁️ Cloud synchronization
+- 🔒 Secure user authentication
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Authentication**: Lucia Auth
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Database**: PostgreSQL with Prisma ORM
+- **AI Integration**: OpenAI API
+- **Deployment**: Vercel
 
 ## Getting Started
+
+1. Clone the repository:
 
 First, run the development server:
 
