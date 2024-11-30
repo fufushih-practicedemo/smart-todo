@@ -31,6 +31,7 @@ const LabelDisplay = ({ labels: initialLabels }: LabelDisplayProps) => {
       setNewLabelName('');
       setNewLabelType('CUSTOM');
       toast({
+        variant: "default",
         title: "成功",
         description: "標籤已新增",
       });
