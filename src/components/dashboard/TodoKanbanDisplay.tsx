@@ -79,11 +79,7 @@ const StatusColumn = ({
   todos: Todo[]; 
   isOver: boolean;
 }) => (
-  <div 
-    id={`column-${id}`}
-    data-status={id}
-    className="flex-1 min-w-[300px] max-w-[400px] bg-gray-50 rounded-lg p-4 shadow-sm"
-  >
+  <div className="flex-1 min-w-[300px] max-w-[400px] bg-gray-50 rounded-lg p-4 shadow-sm">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
       <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-sm">
@@ -91,6 +87,8 @@ const StatusColumn = ({
       </span>
     </div>
     <div 
+      id={id}
+      data-status={id} 
       className={`space-y-3 min-h-[200px] p-2 rounded-md border-2 ${
         isOver ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-200'
       } transition-colors duration-200`}
@@ -157,22 +155,14 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
   const findContainer = (overId: string | null): string | null => {
     if (!overId) return null;
     
-    // 移除可能的 'column-' 前綴
-    const cleanId = overId.replace('column-', '');
-    
-    // 直接檢查是否為有效的狀態標籤
-    if (statusLabels.includes(cleanId)) {
-      return cleanId;
+    // 檢查是否為狀態標籤
+    if (statusLabels.includes(overId)) {
+      return overId;
     }
     
-    // 如果不是狀態標籤，查找最近的容器
-    const element = document.getElementById(overId);
-    if (!element) return null;
-
-    const container = element.closest('[data-status]');
-    if (!container) return null;
-
-    const status = container.getAttribute('data-status');
+    // 尋找父容器的狀態
+    const container = document.querySelector(`[data-status="${overId}"]`);
+    const status = container?.getAttribute('data-status');
     return status && statusLabels.includes(status) ? status : null;
   };
 
@@ -183,14 +173,14 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     if (!todo) return;
 
     // 獲取目標狀態
-    const targetStatus = findContainer(over.id?.toString());
+    const targetStatus = over.id?.toString() ?? null;
     console.log('Drag end:', { 
       overId: over.id, 
       targetStatus,
       activeId: active.id 
     });
 
-    if (!targetStatus) {
+    if (!targetStatus || !statusLabels.includes(targetStatus)) {
       console.error('No valid target status found');
       return;
     }
