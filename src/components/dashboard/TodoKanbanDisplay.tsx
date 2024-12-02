@@ -6,6 +6,8 @@ import TodoCard from "./TodoCard";
 import {
   DndContext,
   DragOverlay,
+  useDraggable,
+  useDroppable,
   closestCorners,
   KeyboardSensor,
   PointerSensor,
@@ -15,12 +17,7 @@ import {
   DragStartEvent,
   DragOverEvent,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useState, useCallback } from 'react';
 
@@ -34,26 +31,21 @@ const DraggableTodoCard = ({ todo }: { todo: Todo }) => {
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({ 
+  } = useDraggable({
     id: todo.id,
-    data: {
-      type: 'todo',
-      todo,
-    }
+    data: { type: 'todo', todo },
   });
 
   return (
     <div 
-      ref={setNodeRef} 
+      ref={setNodeRef}
       style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transform: CSS.Translate.toString(transform),
         opacity: isDragging ? 0.5 : 1,
       }}
       className="cursor-move touch-none"
-      {...attributes} 
+      {...attributes}
       {...listeners}
     >
       <TodoCard
@@ -71,43 +63,44 @@ const DraggableTodoCard = ({ todo }: { todo: Todo }) => {
 const StatusColumn = ({ 
   id, 
   title, 
-  todos, 
-  isOver 
+  todos,
 }: { 
   id: string; 
   title: string; 
-  todos: Todo[]; 
-  isOver: boolean;
-}) => (
-  <div className="flex-1 min-w-[300px] max-w-[400px] bg-gray-50 rounded-lg p-4 shadow-sm">
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
-      <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-sm">
-        {todos.length}
-      </span>
-    </div>
-    <div 
-      id={id}
-      data-status={id} 
-      className={`space-y-3 min-h-[200px] p-2 rounded-md border-2 ${
-        isOver ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-200'
-      } transition-colors duration-200`}
-    >
-      <SortableContext items={todos.map(t => t.id)} strategy={verticalListSortingStrategy}>
+  todos: Todo[];
+}) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+    data: { type: 'column', status: id },
+  });
+
+  return (
+    <div className="flex-1 min-w-[300px] max-w-[400px] bg-gray-50 rounded-lg p-4 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
+        <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-sm">
+          {todos.length}
+        </span>
+      </div>
+      <div 
+        ref={setNodeRef}
+        className={`space-y-3 min-h-[200px] p-2 rounded-md border-2 ${
+          isOver ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-200'
+        } transition-colors duration-200`}
+      >
         {todos.map((todo) => (
           <DraggableTodoCard key={todo.id} todo={todo} />
         ))}
-      </SortableContext>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // 主要元件
 const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos }) => {
   const [todos, setTodos] = useState(initialTodos);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [statusLabels, setStatusLabels] = useState<string[]>(DEFAULT_STATUS_LABELS);
-  const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
   // 初始化感應器
   const sensors = useSensors(
@@ -143,45 +136,20 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     }, Object.fromEntries(statusLabels.map(label => [label, []])));
   }, [todos, statusLabels]);
 
-  // 拖曳事件處理
   const handleDragStart = ({ active }: DragStartEvent) => {
     setActiveId(String(active.id));
   };
 
-  const handleDragOver = ({ over }: DragOverEvent) => {
-    setActiveColumn(over?.id ? String(over.id) : null);
-  };
-
-  const findContainer = (overId: string | null): string | null => {
-    if (!overId) return null;
-    
-    // 檢查是否為狀態標籤
-    if (statusLabels.includes(overId)) {
-      return overId;
-    }
-    
-    // 尋找父容器的狀態
-    const container = document.querySelector(`[data-status="${overId}"]`);
-    const status = container?.getAttribute('data-status');
-    return status && statusLabels.includes(status) ? status : null;
-  };
-
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
-    if (!over) return;
-
+    setActiveId(null);
+    
+    if (!over?.data.current) return;
+    
     const todo = todos.find(t => t.id === active.id);
     if (!todo) return;
 
-    // 獲取目標狀態
-    const targetStatus = over.id?.toString() ?? null;
-    console.log('Drag end:', { 
-      overId: over.id, 
-      targetStatus,
-      activeId: active.id 
-    });
-
+    const targetStatus = over.data.current.status;
     if (!targetStatus || !statusLabels.includes(targetStatus)) {
-      console.error('No valid target status found');
       return;
     }
 
@@ -192,17 +160,13 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     try {
       const response = await updateTodoStatus(todo.id, targetStatus);
       if (response.status === "success") {
+        const updatedTodo = response.data[0];
         setTodos(prev => prev.map(t => 
-          t.id === response.data[0].id ? response.data[0] : t
+          t.id === updatedTodo.id ? updatedTodo : t
         ));
-      } else {
-        console.error("Failed to update todo status:", response.message);
       }
     } catch (error) {
       console.error("Error updating todo status:", error);
-    } finally {
-      setActiveId(null);
-      setActiveColumn(null);
     }
   };
 
@@ -213,7 +177,6 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <div className="flex gap-6 overflow-x-auto p-6 min-h-[calc(100vh-200px)]">
@@ -223,7 +186,6 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
             id={status}
             title={status}
             todos={grouped[status] || []}
-            isOver={activeColumn === status}
           />
         ))}
       </div>
