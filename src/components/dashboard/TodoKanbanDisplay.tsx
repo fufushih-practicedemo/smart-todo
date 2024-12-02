@@ -32,15 +32,29 @@ const SortableTodoCard = ({ todo }: { todo: Todo }) => {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: todo.id });
+    isDragging,
+  } = useSortable({ 
+    id: todo.id,
+    data: {
+      type: 'todo',
+      todo,
+    }
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className="cursor-move touch-none"
+      {...attributes} 
+      {...listeners}
+    >
       <TodoCard
         todo={todo}
         onToggleStatus={() => {}}
@@ -60,37 +74,47 @@ const KanbanColumn = ({ title, id, todos }: { title: string; id: string; todos: 
         {todos.length}
       </span>
     </div>
-    <SortableContext 
-      items={todos.map(t => t.id)} 
-      strategy={verticalListSortingStrategy}
-      id={id}
+    <div 
+      data-status={id} 
+      className="space-y-3 min-h-[200px] p-2 rounded-md border-2 border-dashed border-gray-200"
     >
-      <div className="space-y-3 min-h-[200px] p-2">
+      <SortableContext 
+        items={todos.map(t => t.id)} 
+        strategy={verticalListSortingStrategy}
+      >
         {todos.map((todo) => (
           <SortableTodoCard key={todo.id} todo={todo} />
         ))}
-      </div>
-    </SortableContext>
+      </SortableContext>
+    </div>
   </div>
 );
 
+const DEFAULT_STATUS_LABELS = ['Todo', 'In Progress', 'Done'];
+
 const TodoKanbanDisplay: React.FC<TodoKanbanDisplayProps> = ({ todos }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [statusLabels, setStatusLabels] = useState<string[]>([]);
+  const [statusLabels, setStatusLabels] = useState<string[]>(DEFAULT_STATUS_LABELS);
   
   useEffect(() => {
     const fetchStatusLabels = async () => {
       const response = await getLabels();
       if (response.status === 'success') {
-        const labels = response.data.filter(label => label.type === 'STATUS').map(label => label.name);
-        setStatusLabels(labels);
+        const labels = response.data
+          .filter(label => label.type === 'STATUS')
+          .map(label => label.name);
+        setStatusLabels(labels.length > 0 ? labels : DEFAULT_STATUS_LABELS);
       }
     };
     fetchStatusLabels();
   }, []);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px 的移動距離才觸發拖曳
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -98,35 +122,45 @@ const TodoKanbanDisplay: React.FC<TodoKanbanDisplayProps> = ({ todos }) => {
 
   const groupTodosByStatus = (todos: Todo[]) => {
     return todos.reduce((groups: { [key: string]: Todo[] }, todo) => {
-      // Since todo.labels is already an array of label names, 
-      // we just need to find if any of them match our status labels
-      const statusLabel = todo.labels?.find(labelName => 
-        statusLabels.includes(labelName)
-      ) || statusLabels[0] || 'Todo';
+      const todoLabels = todo.labels || [];
+      const statusLabel = todoLabels.find(label => statusLabels.includes(label)) || 'Todo';
       
-      if (!groups[statusLabel]) {
-        groups[statusLabel] = [];
-      }
+      groups[statusLabel] = groups[statusLabel] || [];
       groups[statusLabel].push(todo);
       return groups;
-    }, statusLabels.reduce((acc, label) => ({ ...acc, [label]: [] }), {}));
+    }, Object.fromEntries(statusLabels.map(label => [label, []])));
+  };
+
+  const findContainer = (element: HTMLElement | null) => {
+    if (!element) return null;
+    const container = element.closest('[data-status]');
+    return container ? (container as HTMLElement).dataset.status : null;
+  };
+
+  const handleDragStart = ({ active }: { active: any }) => {
+    setActiveId(String(active.id));
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    
-    if (!over) return;
+    if (!over || !active) return;
 
     const todo = todos.find(t => t.id === active.id);
     if (!todo) return;
 
-    const container = over.data.current?.sortable?.containerId || over.id;
-    const newStatus = container;
-    
-    const response = await updateTodoStatus(todo.id, newStatus);
+    const overContainer = over.data.current?.type === 'todo'
+      ? findContainer(document.getElementById(String(over.id)))
+      : over.id;
 
-    if (response.status !== "success") {
-      console.error("Failed to update todo status:", response.message);
+    if (!overContainer || todo.labels?.includes(String(overContainer))) return;
+
+    try {
+      const response = await updateTodoStatus(todo.id, String(overContainer));
+      if (response.status !== "success") {
+        console.error("Failed to update todo status:", response.message);
+      }
+    } catch (error) {
+      console.error("Error updating todo status:", error);
     }
 
     setActiveId(null);
@@ -139,7 +173,7 @@ const TodoKanbanDisplay: React.FC<TodoKanbanDisplayProps> = ({ todos }) => {
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragEnd={handleDragEnd}
-      onDragStart={({ active }) => setActiveId(String(active.id))}
+      onDragStart={handleDragStart}
     >
       <div className="flex gap-6 overflow-x-auto p-6 min-h-[calc(100vh-200px)]">
         {statusLabels.map((status) => (
