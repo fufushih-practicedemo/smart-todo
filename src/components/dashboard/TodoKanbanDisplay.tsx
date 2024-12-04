@@ -15,16 +15,13 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
-  DragOverEvent,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useState, useCallback } from 'react';
 
-// 定義常數
 const DEFAULT_STATUS_LABELS = ['Todo', 'In Progress', 'Done'];
 
-// 可拖曳的 Todo 卡片元件
 const DraggableTodoCard = ({ todo }: { todo: Todo }) => {
   const {
     attributes,
@@ -59,7 +56,6 @@ const DraggableTodoCard = ({ todo }: { todo: Todo }) => {
   );
 };
 
-// 狀態列元件
 const StatusColumn = ({ 
   id, 
   title, 
@@ -96,13 +92,11 @@ const StatusColumn = ({
   );
 };
 
-// 主要元件
 const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos }) => {
   const [todos, setTodos] = useState(initialTodos);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [statusLabels, setStatusLabels] = useState<string[]>(DEFAULT_STATUS_LABELS);
 
-  // 初始化感應器
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -112,7 +106,6 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     })
   );
 
-  // 獲取狀態標籤
   useEffect(() => {
     const fetchLabels = async () => {
       const response = await getLabels();
@@ -126,7 +119,6 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     fetchLabels();
   }, []);
 
-  // 按狀態分組 Todos
   const groupedTodos = useCallback(() => {
     return todos.reduce((groups: { [key: string]: Todo[] }, todo) => {
       const status = todo.labels?.find(label => statusLabels.includes(label)) || 'Todo';
@@ -153,7 +145,6 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
       return;
     }
 
-    // 檢查是否為相同狀態
     const currentStatus = todo.labels?.find(label => statusLabels.includes(label));
     if (currentStatus === targetStatus) return;
 
