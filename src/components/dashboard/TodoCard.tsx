@@ -11,17 +11,6 @@ import TodoCreateSubDialog from "./TodoCreateSubDialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import TodoDetailDialogButton from "./TodoDetailDialogButton";
 
-
-// export interface Todo {
-//   id: string;
-//   title: string;
-//   isDone: boolean;
-//   startDate?: string;
-//   endDate?: string;
-//   labels?: string[];
-//   subTodos?: Todo[]
-// }
-
 interface TodoCardProps {
   todo: Todo;
   onToggleStatus: (id: string) => void;
