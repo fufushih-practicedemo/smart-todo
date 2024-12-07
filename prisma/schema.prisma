@@ -20,8 +20,9 @@ model User {
 
   session Session[]
 
-  todos         Todo[]
-  notifications Notification[]
+  todos          Todo[]
+  notifications  Notification[]
+  kanbanSettings KanbanSettings?
 }
 
 model Session {
@@ -38,6 +39,7 @@ model Todo {
   isDone      Boolean @default(false)
   isDeleted   Boolean @default(false)
   description String?
+  position    Int     @default(0) // To kanban column order
 
   startDate     DateTime?
   endDate       DateTime?
@@ -58,6 +60,8 @@ model Label {
   name  String @unique
   type  String @default("CUSTOM") // Can be: PRIORITY, CATEGORY, STATUS, CUSTOM
   todos Todo[]
+
+  @@index([type])
 }
 
 model Notification {
@@ -96,4 +100,28 @@ model ReminderSchedule {
   // Relations
   todoId String @unique
   todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
+}
+
+model KanbanColumn {
+  id       String  @id @default(cuid())
+  labelId  String // 對應到 Label 的 id
+  position Int     @default(0) // 欄位順序
+  isHidden Boolean @default(false) // 是否隱藏該欄位
+  limit    Int? // 可選: WIP limit
+
+  settingsId String
+  settings   KanbanSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+
+  @@unique([settingsId, labelId])
+  @@index([labelId])
+}
+
+model KanbanSettings {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  columns KanbanColumn[]
+  userId  String         @unique
+  user    User           @relation(fields: [userId], references: [id])
 }
