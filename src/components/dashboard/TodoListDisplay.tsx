@@ -1,8 +1,9 @@
 'use client';
 
+import { Todo } from "@actions/types";
 import TodoCard from "./TodoCard";
 import TodoCreateDialog from "./TodoCreateDialog";
-import { Todo, createSubTodo, createTodo, deleteTodoAndSubTodos, toggleTodoAndSubTodosStatus, updateTodo } from "@/actions/todo";
+import { createSubTodo, createTodo, deleteTodoAndSubTodos, toggleTodoAndSubTodosStatus, updateTodo } from "@/actions/todo";
 import { startOfToday, startOfTomorrow, endOfWeek, addWeeks, isAfter, isBefore, startOfWeek } from 'date-fns';
 
 interface TodoListDisplayProps {

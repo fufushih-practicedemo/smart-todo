@@ -1,9 +1,10 @@
 "use client";
 
-import { Todo, restoreTodoAndSubTodos, permanentDeleteTodoAndSubTodos } from "@/actions/todo";
+import { restoreTodoAndSubTodos, permanentDeleteTodoAndSubTodos } from "@/actions/todo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Todo } from "@actions/types";
 
 interface TrashTodoDisplayProps {
   deletedTodos: Todo[];
