@@ -154,3 +154,23 @@ export const searchLabels = async (searchTerm: string): Promise<ApiResponse<Labe
     return handleError(error, "Failed to search labels");
   }
 };
+
+export const getStatusLabels = async (): Promise<ApiResponse<Label>> => {
+  try {
+    await handleUserAuth();
+
+    const labels = await db.label.findMany({
+      where: { type: 'STATUS' },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        type: true
+      }
+    }) as Label[];
+
+    return { status: "success", message: "Status labels fetched successfully", data: labels };
+  } catch (error) {
+    return handleError(error, "Failed to fetch status labels");
+  }
+}

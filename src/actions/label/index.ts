@@ -12,7 +12,8 @@ import {
   
   // Additional utility functions
   getLabelsByTodo,
-  searchLabels
+  searchLabels,
+  getStatusLabels,
 } from './label';
 
 export {
@@ -21,5 +22,6 @@ export {
   updateLabel,
   deleteLabel,
   getLabelsByTodo,
-  searchLabels
+  searchLabels,
+  getStatusLabels
 }

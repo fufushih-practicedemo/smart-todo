@@ -1,7 +1,7 @@
 'use client';
 
 import { Todo, updateTodoStatus } from "@/actions/todo";
-import { getLabels } from "@/actions/label";
+import { getLabels, getStatusLabels } from "@/actions/label";
 import TodoCard from "./TodoCard";
 import {
   DndContext,
@@ -108,11 +108,9 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
 
   useEffect(() => {
     const fetchLabels = async () => {
-      const response = await getLabels();
+      const response = await getStatusLabels();
       if (response.status === 'success') {
-        const labels = response.data
-          .filter(label => label.type === 'STATUS')
-          .map(label => label.name);
+        const labels = response.data.map(label => label.name);
         setStatusLabels(labels.length > 0 ? labels : DEFAULT_STATUS_LABELS);
       }
     };
