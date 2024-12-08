@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/lib/prisma";
-import { ApiResponse, KanbanBoard, KanbanColumn, KanbanBoardSchema, KanbanColumnSchema } from "@actions/types";
+import { ApiResponse, KanbanBoard, KanbanColumn, KanbanBoardSchema, KanbanColumnSchema, Todo } from "@actions/types";
 import { getUser } from "@/lib/lucia";
 import { z } from "zod";
 
@@ -131,13 +131,58 @@ export const createKanbanBoard = async (values: z.infer<typeof KanbanBoardSchema
         ...validatedFields.data,
         userId: dbUser.id
       },
-      include: { columns: true }
-    }) as unknown as KanbanBoard; // 轉換類型
+      include: {
+        columns: {
+          include: {
+            todos: {
+              where: { isDeleted: false },
+              orderBy: { position: 'asc' },
+              include: {
+                labels: true,
+                reminder: true,
+                subTodos: {
+                  where: { isDeleted: false }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 新增一個輔助函數來處理 todo 的映射
+    const mapTodoFromPrisma = (todo: any): Todo => ({
+      id: todo.id,
+      title: todo.title,
+      description: todo.description || undefined,
+      isDone: todo.isDone,
+      startDate: todo.startDate || undefined,
+      endDate: todo.endDate || undefined,
+      position: todo.position,
+      columnId: todo.columnId || undefined,
+      labels: todo.labels?.map((label: any) => label.id) || [],
+      subTodos: todo.subTodos?.map((subTodo: any) => mapTodoFromPrisma(subTodo)) || [],
+      reminder: todo.reminder || undefined
+    });
+
+    const mappedBoard: KanbanBoard = {
+      id: board.id,
+      name: board.name,
+      description: board.description || undefined,
+      columns: board.columns.map(column => ({
+        id: column.id,
+        name: column.name,
+        position: column.position,
+        wipLimit: column.wipLimit || undefined,
+        labelId: column.labelId || undefined,
+        todos: column.todos?.map(mapTodoFromPrisma) || []
+      }))
+    };
 
     return {
       status: "success",
       message: "Board created successfully",
-      data: [board]
+      data: [mappedBoard]
     };
   } catch (error) {
     return {
