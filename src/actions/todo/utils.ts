@@ -73,7 +73,7 @@ export const TodoSchema = z.object({
   reminder: ReminderSchema.optional(),
 });
 
-export async function handleUserAuth(): Promise<{ dbUser: any } | { error: ApiResponse<Todo> }> {
+export async function handleUserAuth<T>(): Promise<{ dbUser: any } | { error: ApiResponse<T> }> {
   const user = await getUser();
   if (!user) {
     return { error: { status: "error", message: "Unauthorized", data: [] } };

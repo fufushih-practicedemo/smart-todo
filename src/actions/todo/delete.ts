@@ -6,7 +6,7 @@ import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth } from "./ut
 
 export const deleteTodo = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -48,7 +48,7 @@ const deleteSubTodosRecursively = async (todoId: string, userId: string) => {
 
 export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -85,7 +85,7 @@ export const deleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Tod
 
 export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -112,7 +112,7 @@ export const getDeletedTodos = async (): Promise<ApiResponse<Todo>> => {
 
 export const permanentDeleteTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 

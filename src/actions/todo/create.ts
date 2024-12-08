@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -64,7 +64,7 @@ export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<Ap
 
 export const createSubTodo = async (parentId: string, values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 

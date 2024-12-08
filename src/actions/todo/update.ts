@@ -7,7 +7,7 @@ import { ApiResponse, Todo, TodoSchema, formatTodo, handleError, handleUserAuth 
 
 export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -84,7 +84,7 @@ export const updateTodo = async (id: string, values: z.infer<typeof TodoSchema>)
 
 export const restoreTodo = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -122,7 +122,7 @@ const restoreSubTodosRecursively = async (todoId: string, userId: string) => {
 
 export const restoreTodoAndSubTodos = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -149,7 +149,7 @@ export const restoreTodoAndSubTodos = async (id: string): Promise<ApiResponse<To
 
 export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -177,7 +177,7 @@ export const toggleTodoStatus = async (id: string): Promise<ApiResponse<Todo>> =
 
 export const toggleTodoAndSubTodosStatus = async (id: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -220,7 +220,7 @@ export const toggleTodoAndSubTodosStatus = async (id: string): Promise<ApiRespon
 
 export const updateTodoStatus = async (id: string, status: string): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 

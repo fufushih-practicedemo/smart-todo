@@ -5,7 +5,7 @@ import { db } from "@/lib/prisma";
 
 export const getTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
@@ -59,7 +59,7 @@ const fetchSubTodos = async (todoId: string, userId: string): Promise<Todo[]> =>
 
 export const getTodosWithSubTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
-    const authResult = await handleUserAuth();
+    const authResult = await handleUserAuth<Todo>();
     if ('error' in authResult) return authResult.error;
     const { dbUser } = authResult;
 
