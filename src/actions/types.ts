@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export type ApiResponse<T> = {
+  status: "success" | "error";
+  message: string;
+  data: T[];
+};
+
 /**
  * Kanban actions
  */
@@ -13,6 +19,24 @@ export type KanbanSettings = {
     limit?: number | null;
   }[];
 };
+
+/**
+ * Label actions
+ */
+export const LABEL_TYPES = ['PRIORITY', 'CATEGORY', 'STATUS', 'CUSTOM'] as const;
+
+// Schema
+export const LabelSchema = z.object({
+  name: z.string().min(1, "標籤名稱不能為空").max(50, "標籤名稱不能超過50個字符"),
+  type: z.enum(LABEL_TYPES).default('CUSTOM'),
+});
+
+// Types
+export type Label = {
+  id: string;
+  name: string;
+  type: typeof LABEL_TYPES[number];
+}
 
 /**
  * Todo actions
@@ -52,12 +76,6 @@ export type Todo = {
   labels?: string[];
   subTodos?: Todo[];
   reminder?: ReminderSchedule | null;
-};
-
-export type ApiResponse<T> = {
-  status: "success" | "error";
-  message: string;
-  data: T[];
 };
 
 export const ReminderSchema = z.object({

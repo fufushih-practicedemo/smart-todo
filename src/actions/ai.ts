@@ -1,7 +1,7 @@
 "use server";
 
 import OpenAI from 'openai';
-import { Todo, ApiResponse } from './todo'; 
+import { Todo, ApiResponse } from '@actions/types'; 
 import { getUser } from '@/lib/lucia';
 import { db } from "@/lib/prisma";
 import fs from 'fs/promises';

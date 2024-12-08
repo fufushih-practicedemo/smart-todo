@@ -4,12 +4,14 @@ import { z } from "zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { 
-  Label, 
-  ApiResponse, 
   handleError, 
   handleUserAuth, 
-  LabelSchema,
 } from './utils';
+import { 
+  Label, 
+  ApiResponse,
+  LabelSchema,
+} from "../types";
 
 // CRUD Actions
 export const createLabel = async (values: z.infer<typeof LabelSchema>): Promise<ApiResponse<Label>> => {
