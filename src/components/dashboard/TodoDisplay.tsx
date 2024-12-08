@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import TodoListDisplay from "./TodoListDisplay";
 import TodoCalendarDisplay from "./TodoCalendarDisplay";
 import TodoKanbanDisplay from "./TodoKanbanDisplay";
-import { Todo } from '@/actions/todo';
+import { Todo } from '@actions/types';
 
 interface TodoDisplayProps {
   todos: Todo[];
