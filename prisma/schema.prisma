@@ -18,11 +18,10 @@ model User {
   hashedPassword String?
   picture        String?
 
-  session Session[]
-
-  todos          Todo[]
-  notifications  Notification[]
-  kanbanSettings KanbanSettings?
+  session       Session[]
+  todos         Todo[]
+  notifications Notification[]
+  kanbanBoards  KanbanBoard[]
 }
 
 model Session {
@@ -34,16 +33,17 @@ model Session {
 }
 
 model Todo {
-  id          String  @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  isDone      Boolean @default(false)
-  isDeleted   Boolean @default(false)
+  isDone      Boolean   @default(false)
+  isDeleted   Boolean   @default(false)
   description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  position    Int       @default(0) // For kanban order
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  startDate     DateTime?
-  endDate       DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
   userId        String
   user          User              @relation(fields: [userId], references: [id])
   labels        Label[]
@@ -53,9 +53,11 @@ model Todo {
   notifications Notification[]
   reminder      ReminderSchedule?
 
-  position Int           @default(0) // To kanban column order
+  // Kanban relations
   columnId String?
   column   KanbanColumn? @relation(fields: [columnId], references: [id])
+
+  @@index([columnId])
 }
 
 model Label {
@@ -105,27 +107,31 @@ model ReminderSchedule {
   todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
 }
 
-model KanbanColumn {
-  id       String  @id @default(cuid())
-  labelId  String // 對應到 Label 的 id
-  position Int     @default(0) // 欄位順序
-  isHidden Boolean @default(false) // 是否隱藏該欄位
-  limit    Int? // 可選: WIP limit
-
-  todos      Todo[]
-  settingsId String
-  settings   KanbanSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
-
-  @@unique([settingsId, labelId])
-  @@index([labelId])
-}
-
-model KanbanSettings {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model KanbanBoard {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   columns KanbanColumn[]
-  userId  String         @unique
+  userId  String
   user    User           @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model KanbanColumn {
+  id       String  @id @default(cuid())
+  name     String
+  position Int     @default(0)
+  wipLimit Int?
+  labelId  String?
+
+  todos   Todo[]
+  boardId String
+  board   KanbanBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+  @@index([labelId])
 }

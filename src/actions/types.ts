@@ -7,7 +7,7 @@ export type ApiResponse<T> = {
 };
 
 /**
- * Kanban actions
+ * Kanban types
  */
 export type KanbanSettings = {
   id: string;
@@ -19,6 +19,46 @@ export type KanbanSettings = {
     limit?: number | null;
   }[];
 };
+
+export const KanbanSettingsSchema = z.object({
+  columns: z.array(z.object({
+    labelId: z.string(),
+    position: z.number(),
+    isHidden: z.boolean().default(false),
+    limit: z.number().nullable().optional(),
+  }))
+});
+
+/**
+ * Kanban types
+ */
+export type KanbanBoard = {
+  id: string;
+  name: string;
+  description?: string;
+  columns: KanbanColumn[];
+};
+
+export type KanbanColumn = {
+  id: string;
+  name: string;
+  position: number;
+  wipLimit?: number;
+  todos: Todo[];
+  labelId?: string;
+};
+
+export const KanbanBoardSchema = z.object({
+  name: z.string().min(1, "看板名稱不能為空").max(50, "看板名稱不能超過50個字符"),
+  description: z.string().max(200, "描述不能超過200個字符").optional(),
+});
+
+export const KanbanColumnSchema = z.object({
+  name: z.string().min(1, "欄位名稱不能為空").max(50, "欄位名稱不能超過50個字符"),
+  position: z.number(),
+  wipLimit: z.number().optional(),
+  labelId: z.string().optional(),
+});
 
 /**
  * Label actions
@@ -76,6 +116,8 @@ export type Todo = {
   labels?: string[];
   subTodos?: Todo[];
   reminder?: ReminderSchedule | null;
+  columnId?: string;
+  position?: number;
 };
 
 export const ReminderSchema = z.object({
