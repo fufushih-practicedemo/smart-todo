@@ -1,4 +1,4 @@
-import "server-only";
+"use server";
 import { db } from "@/lib/prisma";
 import { handleError, handleUserAuth } from "../todo/utils";
 import { KanbanSettings } from "@prisma/client";
@@ -14,7 +14,23 @@ export const getKanbanSettings = async (): Promise<ApiResponse<KanbanSettings>> 
       where: { userId: dbUser.id },
       include: {
         columns: {
-          orderBy: { position: 'asc' }
+          orderBy: { position: 'asc' },
+          include: {
+            todos: {
+              where: { 
+                isDeleted: false,
+                userId: dbUser.id 
+              },
+              orderBy: { position: 'asc' },
+              include: {
+                labels: true,
+                reminder: true,
+                subTodos: {
+                  where: { isDeleted: false }
+                }
+              }
+            }
+          }
         }
       }
     });
@@ -22,7 +38,15 @@ export const getKanbanSettings = async (): Promise<ApiResponse<KanbanSettings>> 
     // If no settings exist, create default settings
     if (!settings) {
       const statusLabels = await db.label.findMany({
-        where: { type: 'STATUS' }
+        where: { 
+          type: 'STATUS',
+          // Only get default status labels if none exist
+          OR: [
+            { name: 'Todo' },
+            { name: 'In Progress' },
+            { name: 'Done' }
+          ]
+        }
       });
 
       settings = await db.kanbanSettings.create({
@@ -38,7 +62,23 @@ export const getKanbanSettings = async (): Promise<ApiResponse<KanbanSettings>> 
         },
         include: {
           columns: {
-            orderBy: { position: 'asc' }
+            orderBy: { position: 'asc' },
+            include: {
+              todos: {
+                where: { 
+                  isDeleted: false,
+                  userId: dbUser.id 
+                },
+                orderBy: { position: 'asc' },
+                include: {
+                  labels: true,
+                  reminder: true,
+                  subTodos: {
+                    where: { isDeleted: false }
+                  }
+                }
+              }
+            }
           }
         }
       });
@@ -50,7 +90,37 @@ export const getKanbanSettings = async (): Promise<ApiResponse<KanbanSettings>> 
       data: [settings] 
     };
   } catch (error) {
-    // TODO: Change to use handleError
-    return { status: "error", message: `${error}`, data: [] }
+    return {
+      status: "error",
+      message: `${error}`,
+      data: []
+    }
+  }
+};
+
+export const updateTodoPosition = async (
+  todoId: string,
+  newPosition: number
+): Promise<ApiResponse<any>> => {
+  try {
+    const authResult = await handleUserAuth();
+    if ('error' in authResult) return authResult.error;
+
+    const updated = await db.todo.update({
+      where: { id: todoId },
+      data: { position: newPosition }
+    });
+
+    return {
+      status: "success",
+      message: "Todo position updated successfully",
+      data: [updated]
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: `${error}`,
+      data: []
+    }
   }
 };

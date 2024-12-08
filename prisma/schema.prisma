@@ -39,7 +39,6 @@ model Todo {
   isDone      Boolean @default(false)
   isDeleted   Boolean @default(false)
   description String?
-  position    Int     @default(0) // To kanban column order
 
   startDate     DateTime?
   endDate       DateTime?
@@ -53,6 +52,10 @@ model Todo {
   parentId      String?
   notifications Notification[]
   reminder      ReminderSchedule?
+
+  position Int           @default(0) // To kanban column order
+  columnId String?
+  column   KanbanColumn? @relation(fields: [columnId], references: [id])
 }
 
 model Label {
@@ -109,6 +112,7 @@ model KanbanColumn {
   isHidden Boolean @default(false) // 是否隱藏該欄位
   limit    Int? // 可選: WIP limit
 
+  todos      Todo[]
   settingsId String
   settings   KanbanSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
 

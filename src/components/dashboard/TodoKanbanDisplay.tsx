@@ -1,7 +1,9 @@
 'use client';
 
-import { Todo, updateTodoStatus } from "@/actions/todo";
-import { getLabels, getStatusLabels } from "@/actions/label";
+import { updateTodoStatus } from "@actions/todo";
+import { updateTodoPosition } from "@actions/kanban";
+import { Todo } from "@actions/types";
+import { getStatusLabels } from "@/actions/label";
 import TodoCard from "./TodoCard";
 import {
   DndContext,
@@ -144,18 +146,25 @@ const TodoKanbanDisplay: React.FC<{ todos: Todo[] }> = ({ todos: initialTodos })
     }
 
     const currentStatus = todo.labels?.find(label => statusLabels.includes(label));
-    if (currentStatus === targetStatus) return;
+    const targetTodos = grouped[targetStatus] || [];
+    const newPosition = targetTodos.length;
 
     try {
-      const response = await updateTodoStatus(todo.id, targetStatus);
-      if (response.status === "success") {
-        const updatedTodo = response.data[0];
-        setTodos(prev => prev.map(t => 
-          t.id === updatedTodo.id ? updatedTodo : t
-        ));
+      if (currentStatus !== targetStatus) {
+        // Update status
+        const response = await updateTodoStatus(todo.id, targetStatus);
+        if (response.status === "success") {
+          const updatedTodo = response.data[0];
+          setTodos(prev => prev.map(t => 
+            t.id === updatedTodo.id ? updatedTodo : t
+          ));
+        }
       }
+      
+      // Update position
+      await updateTodoPosition(todo.id, newPosition);
     } catch (error) {
-      console.error("Error updating todo status:", error);
+      console.error("Error updating todo:", error);
     }
   };
 
