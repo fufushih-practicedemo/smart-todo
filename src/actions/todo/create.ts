@@ -1,9 +1,10 @@
 import "server-only";
 
-import { ApiResponse, Todo, TodoSchema, formatTodo, handleError, handleUserAuth } from "./utils";
+import { formatTodo, handleError, handleUserAuth } from "./utils";
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { ApiResponse, Todo, TodoSchema } from "@actions/types";
 
 export const createTodo = async (values: z.infer<typeof TodoSchema>): Promise<ApiResponse<Todo>> => {
   try {

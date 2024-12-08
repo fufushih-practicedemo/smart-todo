@@ -1,17 +1,8 @@
 import "server-only";
 import { db } from "@/lib/prisma";
-import { ApiResponse, handleError, handleUserAuth } from "../todo/utils";
-
-export type KanbanSettings = {
-  id: string;
-  columns: {
-    id: string;
-    labelId: string;
-    position: number;
-    isHidden: boolean;
-    limit?: number | null;
-  }[];
-};
+import { handleError, handleUserAuth } from "../todo/utils";
+import { KanbanSettings } from "@prisma/client";
+import { ApiResponse } from "@actions/types";
 
 export const getKanbanSettings = async (): Promise<ApiResponse<KanbanSettings>> => {
   try {

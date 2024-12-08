@@ -1,7 +1,9 @@
 import "server-only";
 
-import { ApiResponse, Todo, formatTodo, handleError, handleUserAuth, ReminderType } from "./utils";
+import {  formatTodo, handleError, handleUserAuth,  } from "./utils";
 import { db } from "@/lib/prisma";
+import { ReminderType, ApiResponse, Todo } from "@actions/types";
+
 
 export const getTodos = async (): Promise<ApiResponse<Todo>> => {
   try {
