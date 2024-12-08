@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
-import { Todo } from '@/actions/todo';
+import { Todo } from '@actions/types';
 import { useState, useEffect } from 'react';
 
 const locales = {

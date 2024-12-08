@@ -1,6 +1,7 @@
 'use client';
 
-import { Todo, toggleTodoStatus } from "@/actions/todo";
+import { toggleTodoStatus } from "@/actions/todo";
+import { Todo } from "@actions/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";

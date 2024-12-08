@@ -1,6 +1,6 @@
 "use client"
 
-import { Todo } from "@/actions/todo";
+import { Todo } from "@actions/types";
 import { ReactNode, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";

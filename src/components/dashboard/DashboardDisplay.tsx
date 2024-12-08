@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Todo } from "@/actions/todo";
+import { Todo } from "@actions/types";
 import { format, subDays, isWithinInterval } from 'date-fns';
 
 interface DashboardDisplayProps {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Circle, Edit, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import TodoEditDialog from "./TodoEditDialog";
-import { Todo } from "@/actions/todo";
+import { Todo } from "@actions/types";
 import { format } from "date-fns";
 import TodoCreateSubDialog from "./TodoCreateSubDialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";

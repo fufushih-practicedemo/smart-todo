@@ -13,7 +13,7 @@ import { format, toDate } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Todo, ReminderSchedule } from "@/actions/todo";
+import { Todo, ReminderSchedule } from "@actions/types";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LabelInput } from "@/components/dashboard/LabelInput";

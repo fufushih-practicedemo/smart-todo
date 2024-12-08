@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Label, createLabel, updateLabel, deleteLabel } from '@/actions/label';
+import { createLabel, updateLabel, deleteLabel } from '@/actions/label';
 import { useToast } from "@/components/ui/use-toast";
-
-const LABEL_TYPES = ['PRIORITY', 'CATEGORY', 'STATUS', 'CUSTOM'] as const;
+import { Label, LABEL_TYPES } from '@actions/types';
 
 interface LabelDisplayProps {
   labels: Label[];
