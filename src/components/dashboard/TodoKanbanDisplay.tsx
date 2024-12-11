@@ -174,7 +174,7 @@ const TodoKanbanDisplay: React.FC<TodoKanbanDisplayProps> = ({ todos: initialTod
     if (response.status === 'success') {
       const newBoard = response.data[0];
       setBoards(prev => [...prev, newBoard]);
-      handleBoardSelect(newBoard); // 自動選擇新建立的看板
+      handleBoardSelect(newBoard);
     }
   };
 
